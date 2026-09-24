@@ -390,10 +390,11 @@ how strongly it reads as generated:
 - **Dispersion decides.** Admit a word only when it appears across several
   pieces, ideally across years or registers, cited by filename. One piece is an
   occurrence, not a habit, however often it repeats there.
-- **The generic lists are the proxy for the AI side.** A structural connective
-  or summary opener (`in conclusion`, `moreover`, `in short`) reads as generated
-  on sight, so it needs strong dispersion — many pieces, spread over time. A
-  content word needs less.
+- **The generic lists are the proxy for the AI side.** Each list has an
+  *exception bar* table that sorts its sections into structural entries
+  (connectives, openers, closers: high bar, many pieces spread over time),
+  content words (normal bar), and shapes (never an exception; pin the real
+  habit instead). Use that table rather than guessing the kind.
 - **High AI frequency plus strong dispersion is the canonical exception**, not a
   reason to drop it: that is exactly the word a generic list would wrongly strip.
   What disqualifies is thin dispersion.

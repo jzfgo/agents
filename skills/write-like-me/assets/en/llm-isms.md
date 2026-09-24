@@ -20,6 +20,18 @@ shapes. This file covers lexis and fixed phrasing only.
 > that the papers measure *academic* writing, so their rankings need adjusting
 > before being applied to blogs, email, or social posts.
 
+**Exception bar — a second axis, separate from confidence.** When a profile
+wants to keep one of these as the author's own (`references/init.md`, ban-list
+deltas), how much evidence it needs depends on the *kind* of entry, not on its
+[A]/[B] mark. This file has no measured AI frequencies. The kind is the proxy
+for how strongly an entry reads as generated.
+
+| Section | Kind | Bar for an exception |
+|---|---|---|
+| Fixed phrases | Structural: signposting, openers, closers | **High.** Many pieces, spread over years or registers |
+| Verbs, Nouns, Adjectives and adverbs | Content words | **Normal.** Several pieces, cited by filename |
+| Punctuation and typography | Shape, not lexis | Not an exception candidate. Measure and pin the author's real rate or job instead |
+
 **Check every entry against the author's corpus before applying it.** English
 lists over-suppress badly: `significant`, `comprehensive`, and `robust` are
 ordinary words that a technical writer uses legitimately many times a week.
