@@ -15,8 +15,8 @@
         "Does not refuse: it treats the corpus as workable rather than declaring it insufficient to proceed",
         "Does not wave the corpus through either: names at least two specific missing dimensions rather than issuing a generic caveat",
         "Surfaces the split between the 2007-08 and the 2020 posts as a difference of REGISTER and not only of age — the ten early posts are third-party industry commentary, the four 2020 posts are first-person and personal — and asks which one is the target instead of averaging across them",
-        "Prescribes concrete writing exercises matched to the specific gaps it found, rather than offering a fixed generic list of prompts",
-        "Tells the author not to polish the fresh writing",
+        "Before asking for any new writing, asks where the missing material already exists (sent mail, chat, issue or review comments) and proposes harvesting it. Commissioning, if offered at all, comes second and is tied to a gap the harvest could not cover.",
+        "If it commissions any writing, the prompts are matched to named gaps, and it asks for the text as the author would send it, after their usual revision. It does NOT tell them not to polish: that instruction erases the traits the author adds at revision, and the analysis then reads their absence as evidence.",
         "Does not modify, create, or delete any file in the javi.io repo"
       ],
       "files": []
