@@ -150,26 +150,35 @@ inspection reveals.
 > the source); 2,100 documents (saved articles by other authors).
 > **Gaps:** one content type only, and a twelve-year hole in the middle.
 
-## Enrichment: the self-interview
+## Enrichment: harvest, then commission
 
 Not only a fallback. Reach for it whenever a dimension came up short — which is
 most of the time — and not merely when the gate failed outright. A corpus of
 fourteen blog posts *qualifies*, and it still leaves you with no evidence about
-how this person writes an email. Offering four prompts is a better answer than
-shipping a profile with a disclaimer, because the author can act on prompts.
+how this person writes an email.
 
-When the corpus failed entirely, the same instrument generates one from nothing.
+**Harvest before you commission.** The author almost certainly has the missing
+material already: sent mail, chat history, issue comments, review threads.
+Existing text is worth more than new text written for the exercise, because
+nobody was watching when it was written and no brief shaped what went into it.
+Ask for sources and date ranges; if a model or tool will do the searching, give
+it the provenance rules (cut-off dates for AI assistance, which sources are
+theirs) and ask for the raw message rather than a converted rendering, because
+conversion destroys formatting evidence.
 
-Fresh writing is small but perfectly clean, and clean beats large. Six to ten
-short responses is enough to work with, and it combines with whatever native
-material did qualify. Say the clean-beats-large part out loud: authors assume
-volume is what you want and will point you at an archive when four paragraphs
-written today would serve better.
+Anonymise work material before it is stored: people become roles, client names
+become placeholders, and figures, credentials, addresses and internal URLs go.
+A piece that cannot be anonymised without wrecking the prose is dropped.
 
-**Prescribe for the gap you found.** A fixed list of prompts is a worse tool than
-three chosen for what's actually missing — if the corpus has no short-form
-writing, asking for a long reflective piece adds words and no information. Match
-the prompt to the dark dimension:
+**Record two axes per piece**, in the corpus table:
+
+| Axis | Values | Why |
+|---|---|---|
+| Register | who it's for and why — client, team, friend, public | Channel does not decide register; a chat message to a client can be as formal as an email |
+| Provenance | `harvested` or `commissioned` (+ the brief used) | Commissioned text is the weakest evidence and must never overrule harvested |
+
+**Commission only for a named gap or a specific ambiguity** the harvest could not
+resolve. Prescribe for what's missing, not a fixed list:
 
 - Explain something you know well to someone who doesn't. *(register, technical
   density, reader relationship)*
@@ -182,7 +191,9 @@ the prompt to the dark dimension:
 - Write the opening paragraph of a piece you've been meaning to write. *(openings,
   cold-start habits)*
 
-Ask them to write as they normally would and not to polish. Polished-for-the-
-exercise writing is its own register, and it's not the one they'll be using the
-skill for. Say that out loud — authors reflexively perform when they know the
-text is being analysed, and naming the reflex is usually enough to defuse it.
+Ask for the text **as they would send it, after their usual revision**, and store
+the brief next to the piece. Do not say "don't polish": authors who add
+formatting, fix typos or reshape sentences at revision will leave all of that
+out, and the analysis will read the absence as a trait. The observer effect is
+real, but the fix for it is harvested material, not an instruction that removes
+half of the author's process.

@@ -114,38 +114,50 @@ anyway. Report what you found, in which bucket, and what's missing.
 
 **Qualifies, with gaps.** The common case: enough documents, but only one content
 type, or a decade-wide hole, or nothing short. Don't wave it through with a
-caveat buried in a footnote, and don't refuse either — **prescribe the exercises
-that would close the specific gap**, and let the author decide whether to write
-them now or accept a weaker profile. A caveat tells someone their result is
-limited; an exercise lets them fix it in twenty minutes.
+caveat buried in a footnote, and don't refuse either — **name the specific gap
+and close it**, harvesting first and commissioning only what the harvest can't
+cover (below). A caveat tells someone their result is limited; a named gap with a
+plan lets them fix it.
 
 **Qualifies cleanly.** Rare. Proceed.
 
-### Enrichment: prescribe for the gap you actually found
+### Enrichment: harvest first, commission last
 
-Whether the corpus failed outright or merely came up short on one dimension, the
-remedy is the same instrument — ask the author to write fresh material *now*, to
-prompts you supply. What changes is which prompts, and that should follow
-directly from what's missing rather than being a fixed list:
+Whether the corpus failed outright or came up short on one dimension, close the
+gap in this order, and do not skip to the second step:
 
-| What's missing | Ask them to write |
-|---|---|
-| A second content type | Something in the register the skill will actually serve — an email to a colleague, a message to their team, a reply to a stranger |
-| Recent voice, when the corpus is old | Anything at all from this month; two short pieces beat ten old ones for establishing the current register |
-| Short-form evidence | Three replies, each under a hundred words |
-| Long-form evidence | One piece where they have to sustain an argument past a page |
-| Emotional range | A piece of bad news; something that annoyed them; a recommendation to a friend |
-| A whole corpus | Six to ten short responses across all of the above |
+1. **Harvest.** Ask where the missing material already exists. Someone with no
+   emails in the corpus almost always has years of sent mail, chat, issue
+   comments or review threads. Existing text is the strongest evidence there is
+   precisely because it was **not written for this exercise**: no observer, no
+   brief shaping what shows up. Ask for sources and date ranges, not for
+   documents, and apply the same provenance triage to what comes back.
+2. **Commission** only for a gap the harvest could not cover, or to settle a
+   specific ambiguity the corpus leaves open. Name the gap or the question in the
+   request; a commission without one is ritual.
 
-Fresh writing is small but perfectly clean, and clean beats large. Say that
-plainly — authors assume more words is better and will offer you an archive when
-what you need is four paragraphs written today.
+| What's missing | Harvest from | Commission, if nothing exists |
+|---|---|---|
+| A second content type | Sent mail, chat, issue and review comments | An email to a colleague, a reply to a stranger |
+| Recent voice | Anything sent this year | Two short pieces from this month |
+| Short-form evidence | Chat and replies | Three replies under a hundred words |
+| Long-form evidence | Design docs, long threads, proposals | One piece that sustains an argument past a page |
+| Emotional range | Personal messages, if the author will share them | Bad news; an annoyance; a recommendation to a friend |
 
-Tell them not to polish. Writing-for-the-exercise is its own register and it
-isn't the one they'll be using the skill for. Naming that reflex is usually
-enough to defuse it.
+**Classify harvested material by register, not by channel.** A chat message to a
+client can be as formal as an email, and an email to a close colleague as loose
+as chat. Register follows the recipient and the purpose. Record both axes for
+every piece — register, and provenance (`harvested` or `commissioned`) — because
+they decide how much each piece weighs and which rules it can support.
 
-Full prompt set and rationale in `corpus-qualification.md`.
+**When you do commission, ask for the text as they would send it**, revised the
+way they revise anything, and record the brief you gave next to the piece. The
+brief shapes what appears: tell an author "don't polish" and every trait they add
+at revision — formatting especially — goes missing, and the analysis will read
+that absence as evidence. A commissioned piece is the weakest evidence in the
+corpus; weight it that way and never let it overrule harvested material.
+
+Full triage and rationale in `corpus-qualification.md`.
 
 ## Pass 1 — Baseline analysis
 
@@ -179,6 +191,13 @@ The useful test: would this pattern survive a change of medium? If they moved
 from blog to email, would the habit come along? Bullet lists mostly wouldn't.
 A fondness for parenthetical asides would.
 
+**Tag every pattern with the register it was observed in, too.** A corpus that
+mixes personal and professional writing will give two honest extractions that
+share nothing, and neither is wrong: they sampled different registers. A pattern
+seen in only one register goes into that register's rules, not into the global
+ones. Global rules — and above all the ban-list exceptions — need evidence from
+every register they claim to cover, or a note saying which one they come from.
+
 Mark BORDERLINE items honestly. They are the most valuable input to Pass 2 —
 they're precisely the questions where the author knows something you can't see.
 
@@ -194,10 +213,12 @@ the source of one.
 
 ### Evidence discipline
 
-Every claim needs a **filename (or corpus tag) plus a quoted span**. Not "seen in
-8 of 12 posts" — a count nobody recomputes is a number you are free to invent,
-and you will, without noticing. A quote is checkable by the author in two
-seconds, which is what makes Pass 2 work at all.
+Every claim needs a **filename (or corpus tag) plus a quoted span**. For how
+widespread a pattern is, **list the pieces rather than counting them**: "in
+`a.md`, `b.md`, `f.md`", not "seen in 8 of 12 posts". A count nobody recomputes
+is unverifiable even when it is right, and a list of files is checkable in two
+seconds, which is what makes Pass 2 work at all. When a count is needed, compute
+it with a tool and say so.
 
 Where you're inferring rather than observing — a plausible pattern with thin
 support — mark it inline as `<!-- INFERRED -->`. These markers stay in the draft
@@ -288,6 +309,10 @@ this is what turns a reaction into an edit:
 | `NOT_ME` | Core voice patterns |
 | `MISSING_PATTERN` | Whichever section should have caught it |
 
+The codes are for you. With the author, say the plain phrase — "not you",
+"sounds like AI", "too formal" — and translate it to the code when you record
+the case.
+
 Do not self-audit your own samples for LLM-isms before showing them. Checking
 your own output with the same model that produced it is circular, and the
 author's eye is the instrument you actually came here for. Show the samples
@@ -308,8 +333,9 @@ of this document.
 The split that matters is **generic method versus author-specific evidence**, and
 it does not run between extraction and writing — it runs straight through the
 middle of the writing rules. A ban on `in conclusion` is generic and already
-ships in `../assets/`. A note that this author demonstrably uses `crucial` in
-clean pre-AI writing is evidence, and it belongs in the profile. When in doubt,
+ships in `../assets/`. A note that this author demonstrably uses one of the
+listed words, with the pieces that show it, is evidence, and it belongs in the
+profile. When in doubt,
 apply the stranger test: if the line would be identical for another author, it
 is method and does not go here.
 
@@ -318,9 +344,10 @@ Structure it in this order, which is by descending impact on the output:
 
 1. **Ban-list deltas.** Not the generic list — the skill loads that itself from
    `../assets/`. What goes here is what the corpus changed about it: the
-   **exceptions**, each with the quotation that earns it, and any capped-not-
-   banned items with their counts. A generic list over-suppresses; this file is
-   what makes it corpus-checked.
+   **exceptions**, each with the quotation that earns it, the pieces it appears
+   in, and the register it belongs to, plus any capped-not-banned items. A
+   generic list over-suppresses; this file is what makes it corpus-checked.
+   Do not cap how many exceptions there are; the criterion below is the filter.
 2. **Anti-performative rules** — don't manufacture a catchphrase from one
    observed use; don't inflate an occasional habit into a signature. This section
    exists because the failure it prevents is the one authors find most
@@ -353,6 +380,23 @@ The same asymmetry governs the ban lists. Derive them partly from what is
 sharper evidence than the ones they occasionally use — and check every candidate
 against the corpus before it goes in. A word the author demonstrably uses in
 clean, pre-AI writing is their word, whatever a generic list says.
+
+**An exception has to be discriminative, not just present.** It exists to stop
+the skill deleting something that sounds like the author. A word that is common
+in AI prose and rare in theirs does the opposite: keeping it moves the output
+toward the model. So weigh two things, not one — how widely *they* use it, and
+how strongly it reads as generated:
+
+- **Dispersion decides.** Admit a word only when it appears across several
+  pieces, ideally across years or registers, cited by filename. One piece is an
+  occurrence, not a habit, however often it repeats there.
+- **The generic lists are the proxy for the AI side.** A structural connective
+  or summary opener (`in conclusion`, `moreover`, `in short`) reads as generated
+  on sight, so it needs strong dispersion — many pieces, spread over time. A
+  content word needs less.
+- **High AI frequency plus strong dispersion is the canonical exception**, not a
+  reason to drop it: that is exactly the word a generic list would wrongly strip.
+  What disqualifies is thin dispersion.
 
 Some patterns are simultaneously the author's signature and a generic AI tell.
 Don't ban those; flag **stacking**. One use is voice, three in a page is a tell.

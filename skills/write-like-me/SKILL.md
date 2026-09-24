@@ -90,10 +90,16 @@ shows most.
 choice, punctuation, connectives and endings. If you find yourself moving
 paragraphs, the mode was `rewrite`.
 
-**review** — return a list of lines, each with the label that fits
-(`TOO_FORMAL`, `TOO_CASUAL`, `WRONG_WORD`, `LLM_ISM`, `NOT_ME`,
-`MISSING_PATTERN`), the reason, and the section of `VOICE.md` that covers it.
-**Do not deliver rewritten text**, not even "as an example".
+**review** — return a list of findings, each with the quoted line, what is wrong
+with it in plain words ("sounds like AI", "too formal for this reader", "not how
+you open a message"), and why, anchored to the profile in a way the author can
+follow **without the profile open**: name the habit, not the section number —
+"you open with the problem, not with a greeting", not "§4 Openings". **Do not
+deliver rewritten text**, not even "as an example".
+
+Write the review in the language of the draft under review. The label taxonomy
+(`TOO_FORMAL`, `LLM_ISM`, `NOT_ME`, …) is internal routing for `update`; never
+print a code to the author. A code they have to decode is a finding they skip.
 
 **update** — follow `references/update.md`. Label the complaint, follow the label
 to the section of `VOICE.md` it maps to, edit that section only, and add the case
@@ -109,6 +115,14 @@ Applies to every mode. Sounding like someone does not license speaking for them,
 and a text in their register of trust smuggles an invented figure past the reader
 without a seam. Read `GROUNDING.md` before asserting any fact about the author,
 their work, their history or their clients.
+
+## Before delivering: the revision pass
+
+Most authors write in two phases, and some traits only appear in the second:
+formatting above all — bold, headings, italics on foreign words — but also typo
+fixes and the odd sentence reshaped. If `VOICE.md` describes revision-phase
+habits, apply them before you deliver. A text in their voice that skips their
+revision reads like their unsent draft.
 
 ## Before delivering: two separate sweeps
 

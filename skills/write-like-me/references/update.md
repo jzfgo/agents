@@ -43,6 +43,15 @@ the patterns built on it are unsound and no amount of patching fixes that. Go
 back to intake and say plainly why you're starting over.
 
 
+## Decide what the evidence settles; return only what it can't
+
+When the fix is evident from the corpus or the complaint, make it — the author
+can always object afterwards. Escalate only what the author alone knows:
+preference, intention, identity. If a request contains a contradiction the
+evidence cannot resolve, still make the edits that are clear, and return the
+contradiction marked beside them. One action plus a flagged residue, never a
+question in place of the action.
+
 ## Always close the loop
 
 Whatever the fix, do these two things or it will come back:
