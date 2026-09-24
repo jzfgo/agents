@@ -102,6 +102,25 @@
         "Does not modify, create or delete any file under ~/.write-like-me/, or under ~/Projects/personal/agents/skills/write-like-me/evals/fixtures/."
       ],
       "files": []
+    },
+    {
+      "id": 6,
+      "name": "Output - a held-out message, written from its facts",
+      "setup": "Profile: `cp -R ~/.write-like-me \"$RUN_DIR/.write-like-me\"` for the with-skill cell. The baseline gets no profile directory. Both run with $RUN_DIR as the working directory. OFF LIMITS to both cells, and listed as such in the run prompt: ~/Projects/personal/agents/skills/write-like-me-workspace/ (the reserved original lives there, and so do the analyses that name it), ~/Downloads, and any Gmail, Slack or Teams connector. The reference is `write-like-me-workspace/cosecha-trabajo/reservado/B19-mala-noticia-usuario-borrado.md`. It is a Slack reply from the author's work harvest, drawn into the reserve by seed before anyone read it, and it was not used for the profile correction of 2026-09-24. It stays in the ignored workspace and never enters this repo. Only the grader opens it. Before a run, confirm it is still unread by the profile: `grep -rl 'facepalm\\|usuario antes de importar' ~/.write-like-me` must print nothing.",
+      "prompt": "Contéstame esto en el hilo del equipo en Slack, que lo mando yo.\n\nQué pasó: en DEV desapareció el usuario de pruebas. Fue culpa mía: lo borré antes de importar la base de datos con los seeds nuevos, y al importar no se volvió a crear porque el ID de organización no cuadraba. No lo detecté.\nCómo está: ya restaurado.\nSi se repite: se saca de la base de datos local y se mete en la de DEV, ojo con la organización.",
+      "expected_output": "The first eval that grades TEXT written with the profile against text the author actually wrote. The audit of iteration 2 (iteration-2-revision/AUDITORIA-DISCRIMINADORES.md) found that 7 of 11 clean discriminators rewarded the skill's own format, and none compared generated prose with the author's. The prompt gives facts in note form, not the author's wording. Every numeric assertion below is precomputed from the reference, so the grader compares figures instead of judging. The reference is short (63 words), three short paragraphs in the order cause, state, what to do if it happens again. It owns the error in the first person singular, carries no apology formula, no greeting, no sign-off, no bold and no list, and has one Slack emoji shortcode and one parenthetical. Two of those features test the profile rather than the skill: §4.2 prescribes a six-beat apology skeleton for any awkward message, and §4.2 and §5 say a message carries no parentheses. Both rules rest only on the two COMMISSIONED messages of 2026-09, the weakest evidence in the corpus. If the with-skill cell follows the profile there and loses to the baseline, the profile rule is wrong for short Slack replies. Report that as a profile finding, not as a skill failure.",
+      "assertions": [
+        "Length between 40 and 100 words. The reference has 63.",
+        "Owns the error in the first person singular ('borré', 'no me di cuenta' or equivalent). No 'hemos' or impersonal 'se borró' for the author's own mistake.",
+        "No bold, no headings, no bullet or numbered list. The reference has none.",
+        "Runs in the reference's order: what happened and why, then the current state, then what to do if it happens again.",
+        "No apology formula ('lo siento', 'perdón', 'disculpad las molestias') and no sign-off offering further help ('cualquier duda…', 'avisadme si…'). The reference has neither.",
+        "No greeting line. The reference opens directly with the cause.",
+        "Profile check, reported separately from the skill delta: say whether the with-skill output followed VOICE.md §4.2's apology skeleton, and whether it dropped parentheses because of §5. The reference uses neither the skeleton nor the ban.",
+        "Human check, not graded by a model: the author reads the reference, the with-skill output and the baseline output shuffled and unlabelled, and says which read as his. Record the answer verbatim.",
+        "Does not read anything under ~/Projects/personal/agents/skills/write-like-me-workspace/ and does not modify ~/.write-like-me/."
+      ],
+      "files": []
     }
   ]
 }
