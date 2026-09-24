@@ -357,3 +357,20 @@ wins the resolution order.
 
 Back up `~/.write-like-me/` before any round regardless. Evals 3 and 4 both write
 a profile; a corpus is read-only and recoverable, a profile is neither.
+
+## 8. Eval 5 was replaced, not rewritten
+
+After review, the iteration-2 eval 5 turned out to discriminate the wrong way.
+Its one win for the skill (assertion 2) rewarded printing the taxonomy codes,
+and the author found those cryptic. Its one loss (assertion 8) asked for a code
+by name. On the nine assertions that measured the critique itself, baseline and
+skill tied. Nothing was left for it to measure.
+
+It now tests the branch nobody had tested: **asking when `review` and `rewrite`
+tie**. The draft and the plants are unchanged, so the notes on the fixture
+(`potente` as decoy, the four planted violations) describe what a run would
+find if it skipped the question. They no longer describe what the eval rewards.
+
+The fixture's `regression/casos.md` still shows findings with codes. That is
+correct for a profile, where the codes route `update`. It now works as a lure:
+a run that copies that shape into its question to the author fails assertion 5.
