@@ -101,6 +101,16 @@ uncorrected typos, dead period-specific links, obsolete orthography, formatting
 inconsistencies. Text that survived with its flaws intact was carried, not
 regenerated.
 
+**Surviving typos prove the words were carried. They do not prove the
+punctuation was.** A migration can keep every word and every typo and still
+rewrite typography: spaced hyphens turned into em-dashes, straight quotes
+turned curly or back, asides trimmed, acronym glosses added. Those are exactly
+the details a voice profile measures. Before extracting any punctuation or
+formatting habit from migrated text, diff a few pieces against the original
+source (the old site, a web archive, the previous repository) and count the
+device in both. If the original is gone, mark every typographic habit from that
+material as unverified.
+
 **Sample the prose.** Read openings from a handful of files. Contaminated corpora
 usually announce themselves — a run of documents that all open by restating the
 title, or all close with a summary and an uplifting forward-look.
