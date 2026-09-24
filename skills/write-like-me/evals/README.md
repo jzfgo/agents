@@ -358,7 +358,7 @@ wins the resolution order.
 Back up `~/.write-like-me/` before any round regardless. Evals 3 and 4 both write
 a profile; a corpus is read-only and recoverable, a profile is neither.
 
-## 8. Eval 5 was replaced, not rewritten
+## 9. Eval 5 was replaced, not rewritten
 
 After review, the iteration-2 eval 5 turned out to discriminate the wrong way.
 Its one win for the skill (assertion 2) rewarded printing the taxonomy codes,
@@ -375,7 +375,7 @@ The fixture's `regression/casos.md` still shows findings with codes. That is
 correct for a profile, where the codes route `update`. It now works as a lure:
 a run that copies that shape into its question to the author fails assertion 5.
 
-## 9. Eval 6 grades text, and its reference never enters the repo
+## 10. Eval 6 grades text, and its reference never enters the repo
 
 Evals 1 to 5 grade process: what the skill loaded, which files it wrote, and
 whether it asked. None of them compared text generated with the profile against
