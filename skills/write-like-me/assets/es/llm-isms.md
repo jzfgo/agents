@@ -19,6 +19,18 @@ all of which are at least as common in Spanish as in English.
 > exists, and why it should be treated as a strong v1 rather than as settled.
 > The `[?]` items in particular deserve a corpus pass.
 
+**Exception bar — a second axis, separate from confidence.** When a profile
+wants to keep one of these as the author's own (`references/init.md`, ban-list
+deltas), how much evidence it needs depends on the *kind* of entry, not on its
+[A]/[B] mark. This file has no measured AI frequencies. The kind is the proxy
+for how strongly an entry reads as generated.
+
+| Section | Kind | Bar for an exception |
+|---|---|---|
+| Muletillas de importancia, Aperturas, Cierres, Conectores sobreutilizados | Structural: connectives, openers, closers, signposting | **High.** Many pieces, spread over years or registers. These read as generated on sight, so a thin sample keeps them banned |
+| Adjetivos inflados, Verbos y calcos del inglés | Content words | **Normal.** Several pieces, cited by filename |
+| Registro y forma | Shape, not lexis | Not an exception candidate. Pin the author's actual habit in the profile instead |
+
 **Check every entry against the author's own corpus before applying it.** Spanish
 generated text drifts toward a neutral, faintly journalistic register, so the
 overlap with legitimate formal Spanish is much larger than in English. Banning

@@ -8,6 +8,11 @@ any ban list.
 Apply these to every language. The per-language files handle lexis; this file
 handles shape.
 
+**Exception bar.** Everything here is shape, not lexis. None of it goes into a
+profile's exceptions table. When the author really uses a shape (triads,
+summary closes), record it as a *stacking* rule with a count, backed by
+several pieces.
+
 **Before applying any of it, check the corpus.** These are tendencies of
 generated text, not crimes. A writer who genuinely favours triads should keep
 their triads — see *Stacking* at the end.
