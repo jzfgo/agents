@@ -41,11 +41,13 @@ them by path and must not try. This section is only what the corpus changed.
 material the author disowned}}
 
 ### Exceptions — words the generic lists ban that are THEIRS
-{{Do not strip these. One row per word, each with the quotation that earns it.}}
+{{Do not strip these. One row per word. Admit a word by dispersion across pieces,
+not by count, and hold structural connectives to a higher bar than content
+words. A word common in AI prose that appears in only one piece stays banned.}}
 
-| Word | Proof |
-|---|---|
-| {{word}} | {{quote}} ({{source, year}}) |
+| Word | Register | Appears in | Proof |
+|---|---|---|---|
+| {{word}} | {{all / personal / professional}} | {{a.md, b.md, c.md}} | {{quote}} ({{source, year}}) |
 
 ### Capped, not banned
 {{items allowed at most {{n}} times per piece, with the author's real
@@ -99,6 +101,14 @@ Default: **{{register}}** — assume it unless the task says otherwise.
 
 {{Mark any register the corpus does not evidence with ⚠️ and say so in the rule
 itself, so the applying agent warns the author instead of inventing one.}}
+
+### Formatting, by job
+{{What each device DOES for this author, not how often it appears: which lines
+get bold (labels in key-value lines? the conclusion of a block? names of
+products and tools?), whether headings carry bold on top of their size, where
+lists appear. Give the density range by structure, never one global cap —
+listy text and running prose differ several-fold. Mark which of these are added
+at revision, so the applying agent does the revision pass.}}
 
 ### Openings
 {{how {{author}} actually starts, with real examples. Highest-tell region of any

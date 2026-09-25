@@ -102,8 +102,18 @@ binding.
 
 - Headings: frequency, depth, phrasing (noun phrases? questions? sentences?)
 - Lists vs. prose, and what earns a list.
-- Emphasis: bold, italics, caps. Rate and purpose — bold for key terms reads very
-  differently from bold for emphasis, and both are visible habits.
+- Emphasis: bold, italics, caps. **Classify by job, not by rate.** List what each
+  bold span does — a label in a key-value line, a heading, the conclusion of a
+  block, a product or tool name, a word stressed for intensity — and write the
+  rule as the jobs. Density follows content (a piece that names forty products
+  carries forty bolds), so a global cap is meaningless; if you give a range,
+  give it per structure: lists and running prose differ several-fold.
+- **Count formatting only where it survived.** Conversion flattens it: plain-
+  text email renders bold and italic identically, and markdown export of rich
+  text loses size and weight distinctions. Use the HTML, the raw message, or the
+  published page. A formatting rule extracted from converted text is fiction.
+- **Formatting is often added at revision.** Material written on request without
+  a revision pass can have none, and that absence is not evidence. Ask.
 - Punctuation signature: em-dashes, parentheses, ellipses, semicolons,
   exclamation marks. Both which and how often. Parenthetical density in
   particular travels across media, so it's usually VOICE.
