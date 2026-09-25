@@ -374,3 +374,24 @@ find if it skipped the question. They no longer describe what the eval rewards.
 The fixture's `regression/casos.md` still shows findings with codes. That is
 correct for a profile, where the codes route `update`. It now works as a lure:
 a run that copies that shape into its question to the author fails assertion 5.
+
+## 9. Eval 6 grades text, and its reference never enters the repo
+
+Evals 1 to 5 grade process: what the skill loaded, which files it wrote, and
+whether it asked. None of them compared text generated with the profile against
+text the author actually wrote. Eval 6 does, on a single held-out Slack reply
+from the work harvest.
+
+- **The reference stays in the ignored workspace**
+  (`cosecha-trabajo/reservado/`). It is work writing, and this repo is public.
+  The eval carries only its features, precomputed: word count, person, order,
+  and what it lacks.
+- **The runs must not see it.** The workspace, `~/Downloads` and the mail and
+  chat connectors are off limits. Before each run, a grep confirms the profile
+  never absorbed it.
+- **Some assertions test the profile, not the skill.** The apology skeleton and
+  the "no parentheses in messages" rule come from commissioned pieces only. If
+  the skill obeys them and loses to the baseline, that is a profile finding, and
+  the report has to say so rather than count it against the skill.
+- **The final verdict is the author's,** read blind across three texts. The model
+  grader never decides whether it "sounds like him".
