@@ -438,7 +438,11 @@ rows: what's safe to state, what needs checking, what's off-limits.
 
 Dates deserve their own row. A relative reference in a post ("three years ago
 this November") chained to a `date:` field you have already flagged as unreliable
-produces a confident absolute year that is nobody's claim but yours.
+produces a confident absolute year that is nobody's claim but yours. So record
+the reference as the author wrote it, with the piece it comes from, and never
+convert it to an absolute date: `"three years ago this November" (gym-post.md)`,
+not `since November 2016, approx.`. Only a date the author states outright goes
+in the safe row; "approx." marks a guess, and a guess belongs in "verify first".
 
 **4. `regression/`** — the Pass 3 cases as prompt + golden sample + rubric,
 alongside the held-out documents. Include a short README saying how to re-run
@@ -448,6 +452,7 @@ refresh, and the person doing that may not be you.
 A bilingual author gets one profile with shared rules plus per-language sections
 — not two profiles, because it's one person. Name in `VOICE.md` which of the
 skill's language assets apply.
+
 ## Validate before you hand it over
 
 Generate against two or three prompts derived from the **held-out documents**,
