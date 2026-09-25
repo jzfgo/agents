@@ -38,7 +38,9 @@ them by path and must not try. This section is only what the corpus changed.
 
 ### Also never, for this author
 {{banned words and turns verified absent from the corpus, or present only in
-material the author disowned}}
+material the author disowned, that are NOT already on the generic lists. An
+item the generic lists already ban does not go here because the corpus lacks it
+too: that absence confirms the list, it doesn't change it.}}
 
 ### Exceptions — words the generic lists ban that are THEIRS
 {{Do not strip these. One row per word. Admit a word by dispersion across pieces,
@@ -112,11 +114,13 @@ at revision, so the applying agent does the revision pass.}}
 
 ### Openings
 {{how {{author}} actually starts, with real examples. Highest-tell region of any
-text — be specific and concrete.}}
+text — be specific and concrete. Say what they do; don't list the generic
+openers they avoid, the skill already bans those.}}
 
 ### Closings
 {{how they actually end. Generated text defaults to restating the argument and
-turning outward on an uplift; say what {{author}} does instead.}}
+turning outward on an uplift; say what {{author}} does instead, with real
+examples, not which generic closers they avoid.}}
 
 ## 5. What the sweeps check here
 

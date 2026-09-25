@@ -380,6 +380,9 @@ The same asymmetry governs the ban lists. Derive them partly from what is
 sharper evidence than the ones they occasionally use — and check every candidate
 against the corpus before it goes in. A word the author demonstrably uses in
 clean, pre-AI writing is their word, whatever a generic list says.
+Absence only earns a line when the item is *not* on a generic list already. If
+a Spanish corpus has no `cabe destacar`, that confirms the list; writing it into
+`VOICE.md` again fails the stranger test and costs context on every write.
 
 **An exception has to be discriminative, not just present.** It exists to stop
 the skill deleting something that sounds like the author. A word that is common
