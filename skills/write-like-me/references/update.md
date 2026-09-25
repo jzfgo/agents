@@ -37,6 +37,14 @@ as the starting draft rather than beginning from nothing.
 analysing, and re-run the suite. A held-out set that has already been read is not
 held out, so never reuse the old one to validate a profile it helped build.
 
+Before any new piece counts as evidence, ask the author which of them the profile
+helped write. Once a profile exists, the author uses it, and anything drafted or
+polished with it carries the profile's own rules back in. Analysing that material
+confirms the profile against itself, and a tic the profile introduced comes back
+as a pattern the author "has". The same goes for the three recent pieces above.
+Keep what the author wrote alone; set aside what the profile touched, and say
+which pieces you set aside.
+
 Full re-extraction is right in one case: the original corpus turned out to be
 contaminated. If material was translated, AI-assisted, or not the author's, then
 the patterns built on it are unsound and no amount of patching fixes that. Go
