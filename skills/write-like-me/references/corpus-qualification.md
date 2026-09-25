@@ -134,12 +134,18 @@ self-interview to add a second.
 
 **Recency** — prefer the last two years, and *look at the distribution rather
 than the range*. A corpus spanning fifteen years is not a fifteen-year average; it
-is usually two clusters with a gap. Surface it:
+is usually two clusters with a gap.
 
-> Fourteen documents qualify, but ten are from 2007–2008 and four from 2020.
-> That's two different writers a decade apart. Which is the target — recent
-> voice, with the older material as background, or is the earlier voice the one
-> you want back?
+Before you call the gap an age difference, compare what each cluster *is*: who it
+was written for, in whose name, and about what. Clusters a decade apart usually
+differ in register too, and register is the difference that changes the profile.
+Name that, and use age only for what register doesn't explain:
+
+> Fourteen documents qualify, but ten are from 2007–2008 and four from 2020, and
+> they are different kinds of writing. The early ten comment on industry news
+> for a group blog; the 2020 four are first-person and personal. Which is the
+> target — the 2020 voice, with the early posts as background, or both, kept as
+> separate registers?
 
 Then weight explicitly, and record the decision in `VOICE_PROFILE.md`. Silently
 averaging across the gap produces a voice belonging to neither period.
@@ -152,6 +158,13 @@ how they sustain an argument; all-long tells you nothing about how they're brief
 Say what you found, per bucket, with counts and the reasoning. The author needs
 to be able to correct you — they know things about their own files that no
 inspection reveals.
+
+The verdict is almost never "rejected". A corpus that is short on variety,
+recency or length *qualifies with gaps*, and the gaps are the enrichment plan.
+Say it that way. "This corpus is rejected" reads as a dead end to the author,
+even when the next paragraph lists what to do. Reserve refusal for a corpus with
+too little native material left, once provenance is settled, to meet the volume
+bar above.
 
 > **Qualified: 14 documents, ~10,000 words, Spanish.**
 > **Excluded:** 2 documents (AI-assisted, per your rule about anything after
