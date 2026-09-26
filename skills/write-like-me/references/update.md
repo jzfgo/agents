@@ -33,6 +33,11 @@ them against the profile. If they've genuinely drifted apart, extend the corpus
 with the new material and re-run Passes 2 and 3 — but keep the existing profile
 as the starting draft rather than beginning from nothing.
 
+**"Start over", "rebuild it from my blog"** — frustration, not a mode choice.
+Don't take it literally. Ask what sounded wrong and fix that. Offer
+`/write-like-me init` as the expensive option: it takes 23 minutes and throws away
+their corrections. Don't ask for the corpus until they choose it.
+
 **New corpus material** — fold it in, hold out a fresh slice of it before
 analysing, and re-run the suite. A held-out set that has already been read is not
 held out, so never reuse the old one to validate a profile it helped build.
