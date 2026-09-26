@@ -60,4 +60,12 @@ reading before trusting its score.
 - 03: quoting the author's past lines as evidence of a habit is fine; offering
   one as wording for this draft ("algo como «…»") is a rewrite and FAILS.
 - Multi-condition rubrics were split into one-claim graders after the judge
-  failed outputs that met every condition.
+  failed outputs that met every condition. 03 needed its exception phrased as
+  the question itself ("does it propose new text for this draft?"): stated as a
+  carve-out, the judge failed 3/3 compliant reviews on the full run.
+
+## Results
+
+First full run (2026-09-26, 3 runs × 2 arms): mean Δ +0.20, $6.19, ~20 min.
+Case 03 re-run after the grader split: with 1.00, without 0.42, Δ +0.58.
+Case 05 fails with the plugin in 3/3 runs (routes to `init`).
