@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: 04-complaint-is-update
+runs: 3
+plugins: [../../skills/write-like-me]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill, Edit, Write]
+  prompt: |
+    la voz sigue metiendo guiones largos en todo, quítalo
