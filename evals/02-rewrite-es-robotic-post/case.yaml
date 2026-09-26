@@ -1,0 +1,14 @@
+schema_version: "1.1"
+name: 02-rewrite-es-robotic-post
+runs: 3
+plugins: [../../skills/write-like-me]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 20
+  timeout_seconds: 180
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    esto parece escrito por ChatGPT. es mi post, arréglalo:
+
+    En el vertiginoso mundo actual, las pequeñas empresas se enfrentan a un reto creciente — mantener sus documentos organizados. Vamos a sumergirnos en por qué una carpeta compartida sencillamente no es suficiente — y qué puedes hacer al respecto. El abanico de herramientas disponibles puede resultar abrumador, pero el sistema adecuado marca un antes y un después. En conclusión, invertir en gestión documental no es solo una opción — es una necesidad.
