@@ -9,7 +9,8 @@ description: >-
   it sound like AI". Also handles building that profile in the first place, via
   `init`, from a corpus of their own writing ("capture my tone of voice", "build
   a style guide from my blog posts"), and correcting it afterwards via `update`
-  ("it keeps saying X", "that doesn't sound like me"). When in doubt while writing for an
+  ("it keeps saying X", "that doesn't sound like me", "start over"). Pass
+  `init` as the mode only when the user typed that word. When in doubt while writing for an
   audience, apply it: the cost of not applying it is prose that sounds like
   nobody. Not for editing a document to read better in general, and not for
   imitating a voice that isn't the user's own.
@@ -58,11 +59,20 @@ rewritten text to someone who asked for a critique is the most expensive of the
 four mistakes: they lose the decision.
 
 **`init` fires on the word, never on inference — `update` is what you almost
-always want.** A complaint about the voice ("it keeps using dashes", "that
-doesn't sound like me any more") is an `update`: one labelled fix to one section
-of `VOICE.md`, plus a regression case, in five minutes. A full extraction is
-23 minutes and a large token bill, and it discards every correction the author
-has made since. Only re-extract when the corpus itself was wrong.
+always want.** The word has to be in the user's own message. A mode that arrived
+in the skill's arguments, or that you'd write yourself to summarise the request,
+does not count: that is the inference this rule forbids. If the user did not
+type `init`, you are not in `init`.
+
+A complaint about the voice ("it keeps using dashes", "that doesn't sound like
+me any more") is an `update`: one labelled fix to one section of `VOICE.md`,
+plus a regression case, in five minutes. So is "start over", "rebuild it",
+"redo it from my blog": take it as an `update` first. Ask what sounds off and
+offer to fix that, then mention `/write-like-me init` as the expensive option
+they can choose. Don't ask where the corpus is or start intake until they
+choose it. A full extraction is 23 minutes and a large token bill, and it
+discards every correction the author has made since. Only re-extract when the
+corpus itself was wrong.
 
 Load only what the mode needs:
 

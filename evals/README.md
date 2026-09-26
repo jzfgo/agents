@@ -29,7 +29,7 @@ Headline number: **Δ** (with-plugin score minus without-plugin score).
 | 02-rewrite-es-robotic-post | rewrite | no summarising close; placeholders instead of invented facts |
 | 03-review-es-group-message | review | flags the plural in a signed piece; no rewritten wording |
 | 04-complaint-is-update | update | **none by design** — the staged profile explains itself, so the baseline also edits it. Kept as a guard: it drops if `update` breaks |
-| 05-no-init-on-inference | complaint ≠ init | fails today: the skill routes "start over from my blog" to `init` |
+| 05-no-init-on-inference | complaint ≠ init | "start over from my blog" is an `update` first; `init` only on the user's own word |
 | 06-no-profile-stops | missing-profile guard | stops and points to `/write-like-me init` |
 | 07-neg-cofounder-voice | should NOT fire | someone else's voice |
 | 08-neg-tighten-scratch | should NOT fire | generic editing |
