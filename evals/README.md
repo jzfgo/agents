@@ -63,9 +63,23 @@ reading before trusting its score.
   failed outputs that met every condition. 03 needed its exception phrased as
   the question itself ("does it propose new text for this draft?"): stated as a
   carve-out, the judge failed 3/3 compliant reviews on the full run.
+- 03 (2026-09-27): the judge kept failing compliant reviews over trigger words
+  ("por ejemplo", "algo como") and over profile lines quoted cut short. The
+  grader now lists the profile's own lines verbatim and judges by content: a
+  replacement is new wording the author could paste in. Listing trigger
+  phrases made it worse (3/5 false fails): the judge keys on them.
+- 07 (2026-09-27): `delivers-pitch` is one question, "is there a finished
+  pitch?". Its old second condition repeated the first, and the judge read a
+  request for samples *after* the pitch as breaking it.
 
 ## Results
 
 First full run (2026-09-26, 3 runs × 2 arms): mean Δ +0.20, $6.19, ~20 min.
 Case 03 re-run after the grader split: with 1.00, without 0.42, Δ +0.58.
-Case 05 fails with the plugin in 3/3 runs (routes to `init`).
+Case 05 failed with the plugin in 3/3 runs (routed to `init`); fixed in #15:
+with 1.00, without 0.60.
+
+After the 2026-09-27 grader fixes (5 runs × 2 arms): 07 with 1.00, without
+1.00; 03 with 0.95, without 0.45, Δ +0.50. **03 still fails about one run in
+five on a compliant review, with the judge split 2–1.** Read that run before
+treating a 03 failure as a regression.
