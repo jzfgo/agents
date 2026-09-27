@@ -3,7 +3,6 @@ max_turns: 5
 timeout_seconds: 120
 allowed_tools: [Read, Glob, Grep, Skill]
 runs: 3
-plugins: [../../skills/write-like-me]
 ---
 tighten this paragraph to about 80 words. it's internal scratch, doesn't matter whose voice:
 
