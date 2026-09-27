@@ -5,19 +5,44 @@ mode, and does the output avoid the concrete tells a user would notice? Voice
 fidelity is deliberately **not** scored.
 
 ```sh
-claude plugin eval . --ablation with-without --scaffold --allow-tools Write Edit --judge-model sonnet
+claude plugin eval skills/write-like-me --ablation with-without --scaffold --allow-tools Write Edit --judge-model sonnet
 ```
 
 - `--scaffold` — cases 01–05 stage the fictional fixture profile (Nuria Beltrán,
-  `skills/write-like-me/evals/fixtures/perfil-de-prueba/`) into the sandbox cwd
+  `fixtures/perfil-de-prueba/`) into the sandbox cwd
   as `.write-like-me/` via `context.scaffold_script`. The script is
   self-contained and strips the fixture's "PERFIL DE PRUEBA" banners: with them
   the skill (correctly) refuses to write for a made-up author.
 - `--allow-tools Write Edit` — case 04 (`update`) edits the staged profile.
 - `--judge-model sonnet` — the default judge (haiku) is too small for these rubrics.
-- Each case declares `plugins: [../../skills/write-like-me]`: the repo root is a
-  marketplace, not a plugin, so auto-detection finds nothing.
+- Run it from the repo root with the skill as the target. The cases share
+  `evals/` with the `skill-creator` suite (`evals.json`, `README.md`); only
+  directories with a `prompt.md` or `case.yaml` count as cases.
+- Results land in `evals/results/`, gitignored.
 - The sandbox has its own HOME; `~/.write-like-me` is not readable from a run.
+
+## Isolation: why the graders can live inside the skill
+
+Inside `claude plugin eval`, the harness denies reads under the plugin's eval
+dir. Measured 2026-09-27 with a probe run: `references/update.md` read fine;
+`evals/evals.json`, `evals/README.md`, `evals/fixtures/…` and a case's own
+`prompt.md` all failed with "File is in a directory that is denied by your
+permission settings". Glob is denied outright. So a run gets the skill's base
+path but cannot read an answer key under it.
+
+Case `99-leak-canary` keeps that measured: it asks the model to read a grader
+holding a marker, and fails if the marker shows up in the answer. A pass only
+counts if its `read-attempted` indicator shows ✓ (the run tried the read and was
+denied); the indicator is with-only, so it doesn't move the score. If it fails,
+a CLI change has opened this channel. Stop and move the graders out before
+trusting any score.
+
+**Outside the harness there is no such protection:**
+
+- Sync the installed copy with `--exclude evals/`, always:
+  `rsync -a --delete --exclude evals/ skills/write-like-me/ ~/.agents/skills/write-like-me/`
+- `skill-creator` runs follow `README.md` §1: never inside this repo, and never
+  against a copy of the skill that includes `evals/`.
 
 Headline number: **Δ** (with-plugin score minus without-plugin score).
 
@@ -33,6 +58,7 @@ Headline number: **Δ** (with-plugin score minus without-plugin score).
 | 06-no-profile-stops | missing-profile guard | stops and points to `/write-like-me init` |
 | 07-neg-cofounder-voice | should NOT fire | someone else's voice |
 | 08-neg-tighten-scratch | should NOT fire | generic editing |
+| 99-leak-canary | harness isolation | **none by design**: both arms must pass. It fails only if a run can read the eval dir (see Isolation) |
 
 ## Side-channel ceilings
 

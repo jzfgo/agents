@@ -1,6 +1,6 @@
 .DS_Store
 *-workspace/
-evals/results/
+**/evals/results/
 
 # Planes de trabajo de superpowers: locales, no se versionan
 docs/superpowers/plans/

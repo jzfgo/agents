@@ -1,5 +1,9 @@
 # Running this eval suite
 
+This file is about the `skill-creator` suite in `evals.json`. The
+`claude plugin eval` suite in the numbered directories next to it is documented
+in `PLUGIN-EVAL.md`.
+
 Everything about *what* the evals check lives in `evals.json` — `run_setup`,
 `grading_instructions`, `coverage_gaps` and the per-eval `setup` fields. This
 file holds the three things that are **not** recoverable from there, because
