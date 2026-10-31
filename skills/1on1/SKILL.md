@@ -182,7 +182,7 @@ Why the agent config file and not a separate file: keeping action items here max
 A few notes on this:
 - If the section already exists from a previous review, **replace it** — don't append a second copy. Only the current open items belong here; resolved ones move to the review archive.
 - The inline instruction to the AI (`> When you notice context...`) is intentional — it instructs future sessions to act on these items when relevant context appears, without the user having to ask. For example: if "set up the agent config file" is an open item and the user starts a session in a project without one, the AI should proactively mention it.
-- If the config file doesn't exist yet, create a minimal one with just this section and note that the user should fill in the rest.
+- If you had to create the file, keep it minimal: just this section, and tell the user to fill in the rest.
 
 Tell the user the action items have been written to the agent config file and will be surfaced proactively when relevant.
 
