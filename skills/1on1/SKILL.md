@@ -23,7 +23,7 @@ Before saying anything to the user, gather context:
 git log --oneline -25
 git status
 ```
-- Read the agent config file if present (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, etc.)
+- Read the agent config file if present (`AGENTS.md`, `CLAUDE.md`)
 - Check for package files (`package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`, `pyproject.toml`, etc.) to understand the stack and tooling
 - Scan for obvious signals of recent work: feature branches, open TODOs, recent large diffs
 
@@ -31,7 +31,7 @@ git status
 > "I don't see an active project here. I can run a general session instead — shall we proceed with that, or would you like to point me to a directory first?"
 
 **Read past reviews:**
-- Check `{project_root}/{agent_dir}/reviews/` for a project session, or `~/{agent_dir}/reviews/` for a general one (`{agent_dir}` is `.claude`, `.gemini`, etc. depending on your agent)
+- Check `{project_root}/.claude/reviews/` for a project session, or `~/.claude/reviews/` for a general one
 - Read the last 3–5 reviews (sorted by date, most recent first)
 - As you read them, note:
   - **Recurring themes:** issues or recommendations that keep appearing across reviews
@@ -143,8 +143,8 @@ Suggested: [date — weekly by default unless a different cadence came up in con
 ```
 
 **Save the report to a file** after displaying it in the conversation:
-- Project session: `{project_root}/{agent_dir}/reviews/YYYY-MM-DD.md`
-- General session: `~/{agent_dir}/reviews/YYYY-MM-DD.md`
+- Project session: `{project_root}/.claude/reviews/YYYY-MM-DD.md`
+- General session: `~/.claude/reviews/YYYY-MM-DD.md`
 
 Create the directory if it doesn't exist. Tell the user where it was saved.
 
@@ -156,7 +156,11 @@ Create the directory if it doesn't exist. Tell the user where it was saved.
 
 Reports without follow-through are just documentation. After saving the report, write the open action items into the agent config file so they're loaded into context in every future session — for both of you.
 
-Find or create the agent config file (project root for project sessions, home directory for general): `CLAUDE.md` for Claude Code, `GEMINI.md` for Gemini CLI, `AGENTS.md` otherwise. Append or update a section like this.
+Pick the file this way:
+- **Project session:** use the instructions file that already exists in the project root, checking `AGENTS.md` first, then `CLAUDE.md`. Never create one when the other already exists. If neither exists, create `AGENTS.md`.
+- **General session:** always `~/.claude/CLAUDE.md`.
+
+Append or update a section like this.
 
 Why the agent config file and not a separate file: keeping action items here maximises visibility (the AI reads it every session) and creates a natural incentive to close items — open action items add clutter to a file the user wants to keep lean (~200 lines). The cleanup pressure is a feature, not a bug.
 
