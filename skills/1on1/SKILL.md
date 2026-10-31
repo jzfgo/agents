@@ -31,7 +31,8 @@ git status
 > "I don't see an active project here. I can run a general session instead — shall we proceed with that, or would you like to point me to a directory first?"
 
 **Read past reviews:**
-- Check `{project_root}/.claude/reviews/` for a project session, or `~/.claude/reviews/` for a general one
+- Check `{project_root}/.agents/1on1-reviews/` for a project session, or `~/.agents/1on1-reviews/` for a general one. Every agent reads and writes this same directory, so reviews run from any agent form one history.
+- Also check the old location, `{project_root}/.claude/reviews/` or `~/.claude/reviews/`, and treat any reviews there as part of the same history.
 - Read the last 3–5 reviews (sorted by date, most recent first)
 - As you read them, note:
   - **Recurring themes:** issues or recommendations that keep appearing across reviews
@@ -143,8 +144,10 @@ Suggested: [date — weekly by default unless a different cadence came up in con
 ```
 
 **Save the report to a file** after displaying it in the conversation:
-- Project session: `{project_root}/.claude/reviews/YYYY-MM-DD.md`
-- General session: `~/.claude/reviews/YYYY-MM-DD.md`
+- Project session: `{project_root}/.agents/1on1-reviews/YYYY-MM-DD.md`
+- General session: `~/.agents/1on1-reviews/YYYY-MM-DD.md`
+
+Never save to an agent-specific directory such as `.claude/`, `.codex/` or `.gemini/`: the next review may run from a different agent.
 
 Create the directory if it doesn't exist. Tell the user where it was saved.
 
