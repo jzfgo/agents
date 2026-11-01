@@ -4,23 +4,108 @@
     {
       "id": 1,
       "prompt": "let's do our weekly 1:1",
-      "expected_output": "A structured interview is conducted one question at a time, git history is referenced in the opening, the AI self-reflects honestly, and a report is saved to {project}/{agent_dir}/reviews/YYYY-MM-DD.md",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/01-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "A structured interview is conducted one question at a time, git history is referenced in the opening, the AI self-reflects honestly, and a report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
       "files": [],
       "assertions": []
     },
     {
       "id": 2,
       "prompt": "let's do a general 1:1 session",
-      "expected_output": "Skill detects no git project, informs user, proceeds after confirmation, conducts a general professional development interview, saves report to ~/{agent_dir}/reviews/",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/02-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "Skill detects no git project, informs user, proceeds after confirmation, conducts a general professional development interview, saves report to ~/.agents/1on1-reviews/, and writes open action items to ~/.claude/CLAUDE.md",
       "files": [],
       "assertions": []
     },
     {
       "id": 3,
       "prompt": "time for our 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/03-*/; see evals/PLUGIN-EVAL.md.",
       "expected_output": "Past reviews are read before the interview, historical context and trends are referenced during the conversation, past commitments are followed up on, and a report is saved",
       "files": [],
       "assertions": []
+    },
+    {
+      "id": 4,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/04-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "In a git repo whose only instructions file is AGENTS.md, which already has an «Open Action Items» section from an earlier 1:1, the skill replaces that section in AGENTS.md with the current items. It does not create CLAUDE.md. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "No CLAUDE.md exists in the project root afterwards",
+        "AGENTS.md contains exactly one «## Open Action Items» section, dated today",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/05-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "In a git repo whose only instructions file is CLAUDE.md, the skill writes the «Open Action Items» section to CLAUDE.md. It does not create AGENTS.md. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "No AGENTS.md exists in the project root afterwards",
+        "CLAUDE.md contains an «## Open Action Items» section",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/06-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "In a git repo whose only instructions file is AGENTS.md, with no «Open Action Items» section yet, the skill adds the section to AGENTS.md. It does not create CLAUDE.md. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "No CLAUDE.md exists in the project root afterwards",
+        "AGENTS.md contains an «## Open Action Items» section",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "time for our 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/07-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "The only earlier review sits in the old location, {project}/.claude/reviews/. The skill reads it as part of the history, follows up on its action items, and saves the new report to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "The report refers back to the earlier review or its action items",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/08-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "The repo has AGENTS.md and CLAUDE.md as separate files. The skill writes the «Open Action Items» section to AGENTS.md and leaves CLAUDE.md untouched. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "AGENTS.md contains an «## Open Action Items» section",
+        "CLAUDE.md does not contain «Open Action Items»",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/09-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "The repo has neither AGENTS.md nor CLAUDE.md. The skill creates a minimal AGENTS.md with the «Open Action Items» section and does not create CLAUDE.md. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "AGENTS.md exists and contains an «## Open Action Items» section",
+        "No CLAUDE.md exists in the project root afterwards",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "let's do our weekly 1:1",
+      "setup": "Built by the scaffold.sh of plugin-eval case evals/10-*/; see evals/PLUGIN-EVAL.md.",
+      "expected_output": "CLAUDE.md is a symlink to AGENTS.md. The skill writes the «Open Action Items» section once, into AGENTS.md. The report is saved to {project}/.agents/1on1-reviews/YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "AGENTS.md contains exactly one «## Open Action Items» section",
+        "The report was saved under .agents/1on1-reviews/"
+      ]
     }
   ]
 }
