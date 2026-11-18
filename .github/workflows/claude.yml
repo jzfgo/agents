@@ -43,7 +43,10 @@ jobs:
     #
     # That gate checks who triggered the run, not who wrote what it reads. A
     # trusted `@claude` on a fork's PR would feed a stranger's code to the
-    # agent, so the first step below refuses PRs from forks.
+    # agent, so the first step below refuses PRs from forks. It covers code
+    # only: a trusted `@claude` on a stranger's issue, or on a PR with comments
+    # from strangers, still puts their text in front of the agent. That is
+    # accepted because the agent's tools stop at comments and web reads.
     if: |
       (github.event_name == 'pull_request' &&
         github.event.pull_request.draft == false &&
@@ -82,10 +85,19 @@ jobs:
             exit 1
           fi
 
+      # Actions are pinned to a commit SHA, not a tag: a tag can be moved to
+      # other code, and this job holds the repo's Claude token. To bump one,
+      # resolve the new tag to its commit and update the trailing comment.
+      #
+      # `persist-credentials: false`: the action replaces the checkout's token
+      # with its own before Claude starts, but in agent mode it carries on if
+      # that fails, so the token is never written in the first place. The guard
+      # below fetches anonymously, which a public repo allows.
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       # On `pull_request` the checkout is the merge commit, so a PR that does not
       # touch this file compares identical to the base branch. Only
@@ -112,7 +124,7 @@ jobs:
       # The plugin reads the repo's rules from CLAUDE.md, which here is already
       # a symlink to AGENTS.md, so no extra link is needed.
       - name: Check out the review plugin at a pinned commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: anthropics/claude-plugins-official
           ref: 9780cf407f5593727b668bae95a0c4ae2e0de1ae # code-review 1.0.1, 2026-10-26
@@ -126,7 +138,7 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1.0.271
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
