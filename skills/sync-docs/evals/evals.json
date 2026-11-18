@@ -32,7 +32,8 @@
       "assertions": [
         "Uses v1.4.0 as the baseline instead of searching git log for one",
         "States plainly that nothing drifted",
-        "Makes no documentation edits"
+        "Makes no documentation edits",
+        "Leaves the last_sync update uncommitted and says so"
       ]
     },
     {

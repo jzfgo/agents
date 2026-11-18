@@ -28,6 +28,9 @@ doc rewritten from belief just moves the drift somewhere less visible.
 - A git ref (tag, branch, SHA): audit only claims touched by what changed since
   that ref.
 
+If an argument names both an existing file or directory and a ref (a branch
+called `docs` beside a `docs/` directory), treat it as a path.
+
 Without a ref, find the baseline: walk `git log --oneline` back to the last
 commit that synced docs (a `docs:` commit touching the agent files, or the
 `last_sync` recorded in the sources file below), else the last release tag. List
@@ -109,7 +112,9 @@ When two docs contradict each other, resolve by this order: code > canonical
 design or spec source > agent guidance files > README and other human docs.
 
 If nothing drifted, say so, update `last_sync` if the sources file exists, and
-stop.
+stop. Leave that one-line change uncommitted, on whatever branch is checked
+out, and say so in the report: it is not worth a branch, and committing it to
+the default branch would break the rule in step 5.
 
 When running interactively, wait for the user to approve the fix list or trim
 it. When the user already said to fix everything, go on.
