@@ -71,13 +71,16 @@ while [ "$i" -lt "$total" ]; do
       | "  \(.type) \(.host) \(.ttl) \(.priority // "") \(.value)"' "$backup" >&2
     echo "Full backup: $backup. Restore them with an add-op changes file; do not retry blindly." >&2
     echo "Live zone vs. the intended result now:" >&2
-    cdmon_plan "$domain" "$(cdmon_records "$domain")" "$changes" | cdmon_render >&2 || true
+    if live="$(cdmon_records "$domain")"; then
+      cdmon_plan "$domain" "$live" "$changes" | cdmon_render >&2 || true
+    fi
     exit 1
   fi
   i=$((i + 1))
 done
 
-after="$(cdmon_plan "$domain" "$(cdmon_records "$domain")" "$changes")"
+live="$(cdmon_records "$domain")" || cdmon_die "applied, but the zone could not be re-read to verify it"
+after="$(cdmon_plan "$domain" "$live" "$changes")"
 if jq -e '.summary.changed == 0' >/dev/null <<<"$after"; then
   echo "Applied and verified: the live zone matches the plan."
 else

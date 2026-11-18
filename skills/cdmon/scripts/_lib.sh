@@ -9,7 +9,6 @@ set -euo pipefail
 set +x
 
 CDMON_API_BASE="${CDMON_API_BASE:-https://api-domains.cdmon.services/api-domains}"
-CDMON_SPEC_URL="https://api-domains-docs.cdmon.com/openapi/reseller-tool/en/openapi.yaml"
 CDMON_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Types the API can write (verified 2026-11-18). AAAA, MX, NS and SOA are
 # listed by getDnsRecords but create answers "DNS record type not supported".
@@ -52,7 +51,10 @@ cdmon_call() {
       -H @<(printf 'apikey: %s\n' "$CDMON_API_KEY") \
       --data-binary "$body")"; then
     rm -f "$tmp"
-    cdmon_die "$endpoint: network error"
+    # Return, do not exit: apply.sh calls this inside `if` and must still print
+    # its partial-failure report when the network drops mid-run.
+    printf 'cdmon: %s: network error\n' "$endpoint" >&2
+    return 1
   fi
   resp="$(cdmon_redact "$(cat "$tmp")")"
   rm -f "$tmp"

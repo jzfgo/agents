@@ -16,6 +16,6 @@ if [ "$json" = 1 ]; then
   jq . <<<"$data"
 else
   jq -r '(["DOMAIN", "EXPIRES", "AUTORENEW", "NAMESERVERS"] | @tsv),
-         (.[] | [.domain, .expiration_date, .autorenew, (.nameservers | join(","))] | @tsv)' \
+         (.[] | [.domain, .expiration_date, .autorenew, (.nameservers // [] | join(","))] | @tsv)' \
     <<<"$data" | column -t -s $'\t'
 fi

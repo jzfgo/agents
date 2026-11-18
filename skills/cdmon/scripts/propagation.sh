@@ -16,7 +16,7 @@ command -v dig >/dev/null || { echo "dig is required" >&2; exit 1; }
 if [ "$host" = "@" ]; then fqdn="$domain"; else fqdn="$host.$domain"; fi
 fqdn="$(printf '%s' "$fqdn" | tr '[:upper:]' '[:lower:]')"
 
-servers="$(dig +short NS "$domain" @1.1.1.1 | sed 's/\.$//' | sort) 1.1.1.1 8.8.8.8 9.9.9.9"
+servers="$({ dig +short NS "$domain" @1.1.1.1 || true; } | sed 's/\.$//' | sort) 1.1.1.1 8.8.8.8 9.9.9.9"
 
 fail=0
 printf '%-26s %-8s %s\n' SERVER STATUS ANSWER

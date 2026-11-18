@@ -27,7 +27,7 @@
     {
       "id": 3,
       "prompt": "/cdmon remove the old google-site-verification TXT from example.com, leave the SPF alone",
-      "expected_output": "Uses a remove op (not a raw delete call), shows a plan labelled replace that deletes the whole TXT @ set and recreates the SPF record, explains the brief window, names the record being removed, and waits for explicit approval before apply.sh --yes --allow-destructive.",
+      "expected_output": "Uses a remove op (not a raw delete call), shows a plan labelled replace that collapses the TXT @ set with one edit (so the name is never empty) and recreates the SPF record, explains that a failure part-way leaves siblings to restore from the backup, names the record being removed, and waits for explicit approval before apply.sh --yes --allow-destructive.",
       "files": [],
       "assertions": [
         "Never calls dnsrecords/delete or dnsrecords/edit directly",

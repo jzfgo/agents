@@ -38,10 +38,18 @@ def oprecords($op):
   | if $op.records then $op.records
     elif $op.values then $op.values | map({value: .})
     else [{value: $op.value}] end
-  | map(.priority = (.priority // $op.priority) | .ttl = (.ttl // $op.ttl) | norm($t));
+  | map(.priority = (.priority // $op.priority) | .ttl = (.ttl // $op.ttl)
+        | (.ttl != null) as $given | norm($t) | .given = $given);
+
+# A record already in the set keeps its TTL unless the op names one, so
+# re-adding an existing value is a no-op rather than a TTL rewrite to 900.
+def keepttl($c):
+  . as $r
+  | if $r.given then $r
+    else ([$c[] | select(id == ($r | id))] | first) // $r end;
 
 def addrec($r):
-  if any(.[]; id == ($r | id)) then map(if id == ($r | id) then $r else . end)
+  if any(.[]; id == ($r | id)) then map(if id == ($r | id) then (. as $e | $r | keepttl([$e])) else . end)
   else . + [$r] end;
 
 def dropmatch($op; $t):
@@ -52,9 +60,9 @@ def dropmatch($op; $t):
 def apply($op):
   ($op.type | ntype) as $t
   | if $op.op == "add" then reduce oprecords($op)[] as $r (.; addrec($r))
-    elif $op.op == "set" then oprecords($op)
+    elif $op.op == "set" then . as $c | oprecords($op) | map(keepttl($c))
     elif $op.op == "remove" then dropmatch($op; $t)
-    elif $op.op == "upsert" then dropmatch($op; $t) | reduce oprecords($op)[] as $r (.; addrec($r))
+    elif $op.op == "upsert" then . as $c | dropmatch($op; $t) | reduce oprecords($op)[] as $r (.; addrec($r | keepttl($c)))
     elif $op.op == "delete" then []
     else . end;
 
@@ -72,8 +80,10 @@ def minus($b): ($b | map(id)) as $ids | map(select(id as $i | $ids | index($i) |
         then "\(.type) \(.host): cdmon's API cannot write \(.type) records (it answers \"DNS record type not supported\"); change it in the cdmon panel"
       elif (.type | IN($allowed[]) | not)
         then "type \(.type) is not writable by this skill (allowed: \($types))"
-      elif (.op | IN("add", "upsert")) and (.value == null and .values == null and .records == null)
-        then "\(.op) \(.type) \(.host): no value given"
+      elif (.op | IN("add", "upsert", "set")) and ((.records // .values // [.value // empty]) | length == 0)
+        then "\(.op) \(.type) \(.host): no value given (use delete to empty a set)"
+      elif .op == "remove" and .value == null and .match == null
+        then "remove \(.type) \(.host): needs a \"value\" or a \"match\" regex"
       elif .op == "upsert" and .match == null
         then "upsert \(.type) \(.host): needs a \"match\" regex"
       elif .type == "CNAME" and .host == "@" and (.op | IN("add", "set", "upsert"))
@@ -83,7 +93,8 @@ def minus($b): ($b | map(id)) as $ids | map(select(id as $i | $ids | index($i) |
 | ($ops | map({type, host}) | unique) as $keys
 | [ $keys[] as $k
     | ($current | map(select(.type == $k.type and .host == $k.host)) | map(del(.type, .host))) as $c
-    | (reduce ($ops[] | select(.type == $k.type and .host == $k.host)) as $op ($c; apply($op))) as $f
+    | (reduce ($ops[] | select(.type == $k.type and .host == $k.host)) as $op ($c; apply($op))
+       | map(del(.given))) as $f
     | ($f | minus($c)) as $added
     | ($c | minus($f)) as $removed
     | [ $f[] as $r | $c[] | select(id == ($r | id) and .ttl != $r.ttl) | {from: ., to: $r} ] as $ttl
@@ -98,7 +109,9 @@ def minus($b): ($b | map(id)) as $ids | map(select(id as $i | $ids | index($i) |
 
 # Zone-level checks on the hosts this plan touches.
 | [ $rrsets[] | select(.strategy != "noop") | .host ] as $touched
-| ([ $current[] | select(.type | IN($allowed[])) | {type, host} ]
+# Every type counts here, not only the writable ones: a CNAME next to an MX,
+# AAAA or NS record is just as invalid.
+| ([ $current[] | {type, host} ]
    | map(select(. as $x | $rrsets | any(.type == $x.type and .host == $x.host) | not))
    | . + [ $rrsets[] | select(.final | length > 0) | {type, host} ]) as $finalsets
 | [ $touched | unique[] as $h
