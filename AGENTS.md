@@ -64,7 +64,7 @@ An array of `{ "query": "...", "should_trigger": true|false }` objects. Include 
 
 - Skill instructions inside `SKILL.md` are written for the agent to follow, not for humans to read as documentation. Write them as imperative directives.
 - The `description:` should explicitly call out what the skill does NOT cover (e.g., "Use this skill for... Not for code reviews or debugging") — this is what populates the negative trigger cases.
-- Report files and persistent artifacts produced by skills go into agent-specific subdirectories (e.g., `.claude/reviews/` for Claude Code) to keep them out of the way.
+- Report files and persistent artifacts produced by skills go in their own subdirectory under `.agents/` (e.g., `.agents/1on1-reviews/`; never directly in `.agents/` or `.agents/skills/`), never an agent-specific directory such as `.claude/`, `.codex/` or `.gemini/`: the next run may come from a different agent.
 
 ## Plugin manifests
 
