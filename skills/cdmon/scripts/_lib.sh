@@ -10,8 +10,9 @@ set +x
 
 CDMON_API_BASE="${CDMON_API_BASE:-https://api-domains.cdmon.services/api-domains}"
 CDMON_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Types the API can write (verified 2026-11-18). AAAA, MX, NS and SOA are
-# listed by getDnsRecords but create answers "DNS record type not supported".
+# Types the API can write (verified against the live API, see
+# references/api.md). AAAA, MX, NS and SOA are listed by getDnsRecords but
+# create answers "DNS record type not supported".
 CDMON_TYPES="A CNAME TXT"
 
 cdmon_die() {
@@ -39,25 +40,27 @@ cdmon_require() {
 # Prints the response body on success ({"status":"ok",...}). On any failure,
 # prints one redacted line to stderr and exits non-zero.
 cdmon_call() {
-  local endpoint="$1" body="$2" tmp code resp msg
+  local endpoint="$1" body="$2" out code resp msg
   cdmon_require
-  # The API allows 3 requests/second; stay under it.
+  # The API allows 3 requests/second; stay under it. This sleeps before the
+  # first call too: callers run cdmon_call in subshells ($(...), pipes), so a
+  # "called before" flag would not survive between calls.
   sleep 0.4
-  tmp="$(mktemp)"
-  if ! code="$(curl -sS -o "$tmp" -w '%{http_code}' -X POST \
+  # Body and status come back together (status on the last line), so there is
+  # no temp file to leak if the run is interrupted.
+  if ! out="$(curl -sS -w '\n%{http_code}' -X POST \
       "$CDMON_API_BASE/$endpoint" \
       -H 'Accept: application/json' \
       -H 'Content-Type: application/json' \
       -H @<(printf 'apikey: %s\n' "$CDMON_API_KEY") \
       --data-binary "$body")"; then
-    rm -f "$tmp"
     # Return, do not exit: apply.sh calls this inside `if` and must still print
     # its partial-failure report when the network drops mid-run.
     printf 'cdmon: %s: network error\n' "$endpoint" >&2
     return 1
   fi
-  resp="$(cdmon_redact "$(cat "$tmp")")"
-  rm -f "$tmp"
+  code="${out##*$'\n'}"
+  resp="$(cdmon_redact "${out%$'\n'*}")"
   if [ "$code" = 200 ] && jq -e '.status == "ok"' >/dev/null 2>&1 <<<"$resp"; then
     printf '%s\n' "$resp"
     return 0

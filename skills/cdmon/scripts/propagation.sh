@@ -22,9 +22,23 @@ fail=0
 printf '%-26s %-8s %s\n' SERVER STATUS ANSWER
 for s in $servers; do
   out="$(dig +noall +answer +time=3 +tries=1 "$fqdn" "$type" @"$s" 2>/dev/null || true)"
+  # TXT answers come as one or more quoted chunks ("a" "b") with \", \\ and \DDD
+  # escaped inside; join the chunks and unescape, so a value that contains
+  # quotes or spaces is compared as published.
   answers="$(awk -v n="$fqdn." -v t="$type" 'tolower($1) == n && $4 == t {
-      v = ""; for (i = 5; i <= NF; i++) v = v (i > 5 ? " " : "") $i; print v }' <<<"$out" |
-    sed -e 's/" "//g' -e 's/^"//' -e 's/"$//')"
+      if (t != "TXT") {
+        v = ""; for (i = 5; i <= NF; i++) v = v (i > 5 ? " " : "") $i; print v; next }
+      v = $0; for (k = 1; k <= 4; k++) sub(/^[ \t]*[^ \t]+[ \t]+/, "", v)
+      r = ""; q = 0
+      for (i = 1; i <= length(v); i++) {
+        c = substr(v, i, 1)
+        if (q && c == "\\" && substr(v, i + 1, 3) ~ /^[0-9][0-9][0-9]$/) {
+          r = r sprintf("%c", substr(v, i + 1, 3) + 0); i += 3 }
+        else if (q && c == "\\") { i++; r = r substr(v, i, 1) }
+        else if (c == "\"") q = !q
+        else if (q) r = r c
+      }
+      print r }' <<<"$out")"
   if [ -z "$answers" ]; then
     other="$(awk -v n="$fqdn." 'tolower($1) == n && $4 == "CNAME" { print $5 }' <<<"$out" | head -1)"
     status=missing; shown="${other:+(only CNAME $other — wildcard?)}"
