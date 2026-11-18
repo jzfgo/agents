@@ -19,7 +19,7 @@ Skills are auto-discovered by any [AgentSkills-compatible](https://agentskills.i
 |---------|---------|
 | **Claude Code** | `claude mcp add javito-skills@git+https://github.com/jzfgo/agents.git` |
 | **OpenCode** | Add `"plugin": ["javito-skills@git+https://github.com/jzfgo/agents.git"]` to `opencode.json` |
-| **Gemini CLI** | Add `@./skills/<name>/SKILL.md` entries to `GEMINI.md` |
+| **Antigravity** | Auto-discovered via `.agents/skills/` symlinks in this workspace; for every workspace, symlink `skills/<name>` into `~/.gemini/config/skills/` |
 | **Pi** | Auto-discovered via `.agents/skills/` symlinks |
 | **Codex** | Auto-discovered via `.codex-plugin/plugin.json` |
 | **Cursor** | Auto-discovered via `.cursor-plugin/plugin.json` |
