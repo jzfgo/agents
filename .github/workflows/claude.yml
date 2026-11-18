@@ -141,6 +141,9 @@ jobs:
           # - `Bash(gh api:*)` lets it read repo configuration not in the tree
           #   (rulesets, required checks, run status). It also accepts
           #   `-X POST`/`-X DELETE`; the author gate above is what keeps that safe.
-          # - `Bash(git:*)` lets it run git instead of guessing; a push is
-          #   refused server-side because the token has `contents: read`.
-          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch,WebFetch,Bash(gh api:*),Bash(git:*)"'
+          # - Read-only git subcommands let it run git instead of guessing. Never
+          #   `Bash(git:*)`: `git -c <key>=<cmd>` and `git config` turn any git
+          #   call into arbitrary code execution, and the job's `contents: read`
+          #   does not stop writes, since the action acts with its own app token.
+          #   `git grep` is left out too: `-O<cmd>` runs a command.
+          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch,WebFetch,Bash(gh api:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(git blame:*),Bash(git status:*),Bash(git ls-files:*),Bash(git rev-parse:*)"'
