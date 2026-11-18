@@ -44,6 +44,8 @@ if jq -e '.summary.destructive > 0' >/dev/null <<<"$plan" && [ "$destructive_ok"
 fi
 
 backup_dir="${CDMON_BACKUP_DIR:-$HOME/.cdmon/backups}"
+# The zone (TXT verification tokens included) is nobody else's business.
+umask 077
 mkdir -p "$backup_dir"
 backup="$backup_dir/$domain-$(date +%Y%m%dT%H%M%S).json"
 jq . <<<"$current" >"$backup"

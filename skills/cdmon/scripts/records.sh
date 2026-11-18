@@ -10,6 +10,9 @@ shift
 type="" host="" json=0
 while [ $# -gt 0 ]; do
   case "$1" in
+    --type | --host) [ $# -ge 2 ] || cdmon_die "$1 needs a value" ;;
+  esac
+  case "$1" in
     --type) type="$(printf '%s' "$2" | tr '[:lower:]' '[:upper:]')"; shift 2 ;;
     --host) host="$2"; shift 2 ;;
     --json) json=1; shift ;;

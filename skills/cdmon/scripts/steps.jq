@@ -4,6 +4,8 @@
 # (host, type) set, so "replace" (only reachable for TXT; plan.jq keeps A and
 # CNAME sets to one record) is: edit (collapses the set to its first final
 # record in one call, so the name is never empty), then create the rest.
+# Labels are progress lines; a DKIM key would make each one ~400 characters.
+def short: if length > 60 then .[:57] + "..." else . end;
 def field($t): if $t == "TXT" then "value" else "destination" end;
 def rec($d; $t; $h): {domain: $d, type: $t, host: $h, ttl: .ttl, (field($t)): .value};
 
@@ -20,4 +22,4 @@ def rec($d; $t; $h): {domain: $d, type: $t, host: $h, ttl: .ttl, (field($t)): .v
                                 new: {ttl: .ttl, (field($t)): .value}}}),
            (.final[1:][] | {endpoint: "dnsrecords/create", data: rec($d; $t; $h)})
       end
-    | . + {label: "\(.endpoint | ltrimstr("dnsrecords/")) \($t) \($h) \(.data | .value // .destination // .new.value // .new.destination // "(whole set)")"} ]
+    | . + {label: "\(.endpoint | ltrimstr("dnsrecords/")) \($t) \($h) \(.data | .value // .destination // .new.value // .new.destination // "(whole set)" | short)"} ]

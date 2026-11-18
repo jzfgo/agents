@@ -20,6 +20,8 @@ def nhost:
 
 def ntype: tostring | ascii_upcase;
 
+# MX is never written (the API rejects it), but records read from the zone are
+# normalized too, so the comparison stays case- and dot-insensitive.
 def nvalue($t):
   tostring
   | if ($t == "CNAME" or $t == "MX") then ascii_downcase | rtrimstr(".") else . end;
@@ -53,7 +55,8 @@ def addrec($r):
   else . + [$r] end;
 
 def dropmatch($op; $t):
-  if $op.match then map(select(.value | test($op.match) | not))
+  # try: an invalid regex is reported in $operrors (exit 2); it must not abort jq here.
+  if $op.match then map(select(.value | try test($op.match) catch false | not))
   elif $op.value then ($op.value | nvalue($t)) as $v | map(select(.value != $v))
   else . end;
 
@@ -86,6 +89,9 @@ def minus($b): ($b | map(id)) as $ids | map(select(id as $i | $ids | index($i) |
         then "remove \(.type) \(.host): needs a \"value\" or a \"match\" regex"
       elif .op == "upsert" and .match == null
         then "upsert \(.type) \(.host): needs a \"match\" regex"
+      elif .match != null and ((.match | type) != "string"
+                               or (.match as $m | try ("" | test($m) | false) catch true))
+        then "\(.op) \(.type) \(.host): invalid match regex \(.match | tojson)"
       elif .type == "CNAME" and .host == "@" and (.op | IN("add", "set", "upsert"))
         then "CNAME at the zone apex is not allowed"
       else empty end ] as $operrors
