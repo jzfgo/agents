@@ -18,6 +18,12 @@
       "description": "Write, rewrite, review and correct text in your own voice, from a profile extracted from your own writing",
       "source": "./skills/write-like-me",
       "category": "productivity"
+    },
+    {
+      "name": "cdmon",
+      "description": "Manage cdmon domains and DNS records (A, CNAME, TXT), with a diff-and-confirm step before every change and propagation checks",
+      "source": "./skills/cdmon",
+      "category": "development"
     }
   ]
 }

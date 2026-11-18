@@ -1,0 +1,11 @@
+{
+  "name": "cdmon",
+  "description": "Manage cdmon domains and DNS records (A, CNAME, TXT) through the cdmon API, with a diff-and-confirm step before every change and dig propagation checks",
+  "author": {
+    "name": "Javier Zapata",
+    "email": "javierzapata82@gmail.com"
+  },
+  "homepage": "https://github.com/jzfgo/agents/tree/main/skills/cdmon",
+  "license": "MIT",
+  "keywords": ["dns", "domains", "cdmon", "devops"]
+}
