@@ -8,10 +8,10 @@ A collection of personal AI agent skills conforming to the [AgentSkills open sta
 
 ## Skill Structure
 
-Every skill lives in its own top-level directory named after the skill:
+Every skill lives in its own directory under `skills/`, named after the skill:
 
 ```
-<skill-name>/
+skills/<skill-name>/
   SKILL.md          # frontmatter (name, description) + full skill instructions
   evals/
     evals.json       # functional test cases: what the skill should do when triggered
@@ -52,12 +52,13 @@ An array of `{ "query": "...", "should_trigger": true|false }` objects. Include 
 
 ## Adding a New Skill
 
-1. Create `<skill-name>/SKILL.md` with frontmatter and instructions.
-2. Create `<skill-name>/evals/evals.json` with at least 2–3 functional test cases.
-3. Create `<skill-name>/evals/trigger_eval.json` with a mix of positive and negative trigger examples — negative examples are especially important to prevent the skill from firing on superficially similar queries.
-4. Create `<skill-name>/.claude-plugin/plugin.json` with skill metadata.
-5. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink.
+1. Create `skills/<skill-name>/SKILL.md` with frontmatter and instructions.
+2. Create `skills/<skill-name>/evals/evals.json` with at least 2–3 functional test cases.
+3. Create `skills/<skill-name>/evals/trigger_eval.json` with a mix of positive and negative trigger examples — negative examples are especially important to prevent the skill from firing on superficially similar queries.
+4. Create `skills/<skill-name>/.claude-plugin/plugin.json` with skill metadata.
+5. Run `ln -s ../../skills/<skill-name> .agents/skills/<skill-name>` and commit the symlink.
 6. Add an entry to `.claude-plugin/marketplace.json` under `plugins[]`.
+7. Add a row to the Skills table in `README.md`.
 
 ## Key Conventions
 
@@ -77,7 +78,7 @@ The repo root `.claude-plugin/marketplace.json` lists every skill under `plugins
 {
   "name": "<skill-name>",
   "description": "<one-line description>",
-  "source": "./<skill-name>",
+  "source": "./skills/<skill-name>",
   "category": "<productivity|development|...>"
 }
 ```
@@ -102,4 +103,4 @@ See `.opencode/INSTALL.md` for setup instructions. Add `"plugin": ["javito-skill
 
 ### Pi / AgentSkills standard
 
-`.agents/skills/` (also read by Antigravity) contains relative symlinks to each skill directory. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink when adding a new skill.
+`.agents/skills/` (also read by Antigravity) contains relative symlinks to each skill directory. Run `ln -s ../../skills/<skill-name> .agents/skills/<skill-name>` and commit the symlink when adding a new skill.
