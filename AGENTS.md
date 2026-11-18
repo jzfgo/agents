@@ -56,9 +56,8 @@ An array of `{ "query": "...", "should_trigger": true|false }` objects. Include 
 2. Create `<skill-name>/evals/evals.json` with at least 2–3 functional test cases.
 3. Create `<skill-name>/evals/trigger_eval.json` with a mix of positive and negative trigger examples — negative examples are especially important to prevent the skill from firing on superficially similar queries.
 4. Create `<skill-name>/.claude-plugin/plugin.json` with skill metadata.
-5. Add `@./<skill-name>/SKILL.md` to `GEMINI.md`.
-6. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink.
-7. Add an entry to `.claude-plugin/marketplace.json` under `plugins[]`.
+5. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink.
+6. Add an entry to `.claude-plugin/marketplace.json` under `plugins[]`.
 
 ## Key Conventions
 
@@ -93,9 +92,9 @@ The `name` in `plugin.json` and in the `marketplace.json` entry must match the s
 
 `.cursor-plugin/plugin.json` at the repo root points `"skills": "./"`. Same auto-discovery as Codex.
 
-### Gemini CLI
+### Antigravity
 
-`gemini-extension.json` at the repo root references `GEMINI.md`. Add `@./<skill-name>/SKILL.md` to `GEMINI.md` when adding a new skill.
+Antigravity discovers workspace skills in `.agents/skills/` — the same symlinks as Pi below. No manifest or context file is needed.
 
 ### OpenCode
 
@@ -103,4 +102,4 @@ See `.opencode/INSTALL.md` for setup instructions. Add `"plugin": ["javito-skill
 
 ### Pi / AgentSkills standard
 
-`.agents/skills/` contains relative symlinks to each skill directory. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink when adding a new skill.
+`.agents/skills/` (also read by Antigravity) contains relative symlinks to each skill directory. Run `ln -s ../../<skill-name> .agents/skills/<skill-name>` and commit the symlink when adding a new skill.
