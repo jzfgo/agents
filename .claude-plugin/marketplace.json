@@ -24,6 +24,12 @@
       "description": "Manage cdmon domains and DNS records (A, CNAME, TXT), with a diff-and-confirm step before every change and propagation checks",
       "source": "./skills/cdmon",
       "category": "development"
+    },
+    {
+      "name": "babysit-pr",
+      "description": "Drive a GitHub PR to merge-ready: triage review comments, fix real issues, rebut false positives, fix CI, and loop on @claude re-reviews",
+      "source": "./skills/babysit-pr",
+      "category": "development"
     }
   ]
 }
