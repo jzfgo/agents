@@ -12,6 +12,7 @@ Personal AI agent skills by [Javier Zapata](https://github.com/jzfgo), conformin
 | [write-like-me](./skills/write-like-me/SKILL.md) | Writes, rewrites, reviews and corrects text in your own voice. `init` builds the profile from a corpus of your own writing, with a re-runnable regression suite; the profile itself stays private, outside this repo. Spanish and English are both first-class |
 | [cdmon](./skills/cdmon/SKILL.md) | Manages domains and DNS records at cdmon through its API: lists domains and records, adds, changes and deletes A, CNAME and TXT records (the API cannot write AAAA or MX) with a diff and explicit confirmation before every write, and checks propagation with `dig`. Needs `CDMON_API_KEY`, `curl` and `jq` |
 | [babysit-pr](./skills/babysit-pr/SKILL.md) | Owns a GitHub PR until it is merge-ready: triages review comments, fixes real issues, answers false positives with evidence, fixes red CI and loops on `@claude` re-reviews until a review of the current HEAD comes back clean. Never merges. Needs `gh`, `jq` and a repo reviewed by `anthropics/claude-code-action` |
+| [sync-docs](./skills/sync-docs/SKILL.md) | Audits agent guidance files, context skills, README and `docs/` against the code, reports every drifted claim with its evidence, and fixes them on a branch once the report is approved. Reads an optional per-repo claims map from `.agents/sync-docs/sources.md`; never edits generated files such as `CHANGELOG.md` |
 
 ## Installation
 

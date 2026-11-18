@@ -30,6 +30,12 @@
       "description": "Drive a GitHub PR to merge-ready: triage review comments, fix real issues, rebut false positives, fix CI, and loop on @claude re-reviews",
       "source": "./skills/babysit-pr",
       "category": "development"
+    },
+    {
+      "name": "sync-docs",
+      "description": "Audit a repo's docs against its code, report every drifted claim with evidence, then fix it",
+      "source": "./skills/sync-docs",
+      "category": "development"
     }
   ]
 }
