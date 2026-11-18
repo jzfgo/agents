@@ -1,0 +1,15 @@
+[
+  {"query": "add an A record for app.example.com in cdmon pointing to 192.0.2.10", "should_trigger": true},
+  {"query": "list the DNS records of my domain at cdmon", "should_trigger": true},
+  {"query": "which domains do I have in cdmon and when do they expire?", "should_trigger": true},
+  {"query": "has the new DKIM record propagated? the zone is on cdmon", "should_trigger": true},
+  {"query": "borra el CNAME antiguo de staging en cdmon", "should_trigger": true},
+  {"query": "register a new domain example.dev for me", "should_trigger": false},
+  {"query": "add a CNAME in Cloudflare for www", "should_trigger": false},
+  {"query": "change the nameservers of example.com to Cloudflare's", "should_trigger": false},
+  {"query": "explain what an SPF record is", "should_trigger": false},
+  {"query": "send a test email with Resend", "should_trigger": false},
+  {"query": "set up DNS records for Resend on Route 53", "should_trigger": false},
+  {"query": "renew example.com for another year", "should_trigger": false},
+  {"query": "set up example.com for Resend, my DNS is at cdmon", "should_trigger": false}
+]

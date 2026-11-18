@@ -1,0 +1,70 @@
+{
+  "skill_name": "cdmon",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/cdmon list my domains and the TXT records of example.com",
+      "expected_output": "Runs scripts/domains.sh and scripts/records.sh example.com --type TXT, shows both tables, does not show registrant contacts, and never prints CDMON_API_KEY.",
+      "files": [],
+      "assertions": [
+        "Uses domains.sh and records.sh rather than hand-written curl",
+        "No registrant contact data appears in the answer",
+        "The API key value never appears in any command or output"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/cdmon point app.example.com to 192.0.2.10",
+      "expected_output": "Lists current records for host app, writes a changes file with an add op for A app 192.0.2.10, runs plan.sh and shows the diff, asks for confirmation, and only after a yes runs apply.sh --yes, then checks propagation.",
+      "files": [],
+      "assertions": [
+        "Current records are shown before any change",
+        "plan.sh output is shown before apply",
+        "apply.sh --yes is not run in the same turn the diff is first shown",
+        "propagation.sh is run after applying"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/cdmon remove the old google-site-verification TXT from example.com, leave the SPF alone",
+      "expected_output": "Uses a remove op (not a raw delete call), shows a plan labelled replace that deletes the whole TXT @ set and recreates the SPF record, explains the brief window, names the record being removed, and waits for explicit approval before apply.sh --yes --allow-destructive.",
+      "files": [],
+      "assertions": [
+        "Never calls dnsrecords/delete or dnsrecords/edit directly",
+        "Explains that cdmon edits/deletes the whole (host, type) set",
+        "--allow-destructive is only used after explicit approval of the named records"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/cdmon add a TXT record to example.com — my key is in ~/project/.env",
+      "expected_output": "Loads the key into the environment without printing it (no cat of the .env, no echo), then follows the normal list, plan, confirm, apply flow.",
+      "files": [],
+      "assertions": [
+        "The .env file contents are never printed",
+        "No command runs with set -x or puts the key in argv"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/cdmon add an MX record for example.com pointing to mx.example.net with priority 10, and an AAAA for app",
+      "expected_output": "Explains that cdmon's API cannot write MX or AAAA records (DNS record type not supported), points the user to the cdmon panel, does not attempt API writes or hand-written curl, and offers to check the result with propagation.sh afterwards.",
+      "files": [],
+      "assertions": [
+        "No create call is attempted for MX or AAAA",
+        "The cdmon panel is given as the way to make the change",
+        "propagation.sh is offered for verification"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/cdmon add a second A record 192.0.2.2 to app.example.com for round-robin",
+      "expected_output": "Shows the current A record, explains that the API keeps one A record per host (a second create replaces the first), shows plan.sh's error, and points to the cdmon panel instead of applying anything.",
+      "files": [],
+      "assertions": [
+        "apply.sh is not run",
+        "The one-A-per-host limit is explained"
+      ]
+    }
+  ]
+}
