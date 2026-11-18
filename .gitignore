@@ -4,3 +4,7 @@
 
 # Planes de trabajo de superpowers: locales, no se versionan
 docs/superpowers/plans/
+
+# Estado local del agente y de instalaciones de skills
+.claude/
+skills-lock.json
