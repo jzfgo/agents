@@ -14,7 +14,8 @@ cannot be reviewed by it.
 
 2. **A trusted-author gate on every comment trigger.** Comment-triggered runs
    execute in the base repo's context *with its secrets*, whoever wrote the
-   comment; GitHub withholds secrets only from `pull_request` runs from forks.
+   comment. GitHub withholds secrets from `pull_request` runs from forks (and
+   from Dependabot-triggered runs), not from comment events.
    On a public repo, gating on `@claude` alone lets any stranger drive the agent
    with whatever tools `claude_args` grants. Require
    `author_association` in `OWNER`, `MEMBER` or `COLLABORATOR`.
@@ -51,6 +52,9 @@ cannot be reviewed by it.
          exit 1
        fi
    ```
+
+   Replace `.github/workflows/claude.yml` with the workflow's own path if it
+   lives elsewhere.
 
 ## Minimal example
 

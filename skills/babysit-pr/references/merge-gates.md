@@ -61,10 +61,16 @@ lists its `bypass_actors`, given admin access:
   - An approval rule, when the count is above 0.
 - **`UNKNOWN`**: GitHub has not computed it yet. Re-query in a minute. Do not
   try a merge to find out: a plain merge attempted while the status is `UNKNOWN`
-  can go through on the user's bypass without asking.
+  can go through on the user's bypass without asking. This was observed in
+  practice, not taken from GitHub's docs, which is one more reason never to
+  merge from inside the loop.
 - **`UNSTABLE`**: mergeable, but a check outside the required list is failing.
   Exit condition 3 still waits for it.
-- **`DRAFT`**: the PR is a draft. Converting it is the user's call.
+- **`HAS_HOOKS`**: mergeable, with passing status and pre-receive hooks that run
+  on merge (GitHub Enterprise Server). Nothing to fix; mention it.
+- **`DRAFT`**: deprecated in the schema in favour of the PR's `isDraft` field,
+  so read `isDraft` instead of relying on this value. Converting a draft is the
+  user's call.
 - **`DIRTY`**: conflicts with the base. Rebase and resolve, or report them if
   the resolution is not obvious from the code.
 

@@ -63,11 +63,17 @@ comment-triggered runs execute, whatever the PR changes:
 
 ```bash
 git fetch --quiet origin "<DEFAULT>"
-git grep -l 'anthropics/claude-code-action' "origin/<DEFAULT>" -- .github/workflows/
+for f in $(git grep -l 'anthropics/claude-code-action' "origin/<DEFAULT>" -- .github/workflows/); do
+  git show "$f" | grep -qE '^[[:space:]]*(on:.*[^a-z_])?issue_comment([^a-z_]|$)' && echo "${f#*:}"
+done
 ```
 
-It prints `origin/<DEFAULT>:<path>`; call the path `<WORKFLOW>`. If there is
-none, stop: this skill cannot request
+`git grep` prints `origin/<DEFAULT>:<path>`; the loop strips the prefix and keeps
+only workflows triggered by `issue_comment`, since a repo may have several
+using the action (an automatic `pull_request` review beside the comment-driven
+one) and only the latter answers Step 4. Call the bare path it prints
+`<WORKFLOW>`. If it prints more than one, ask the user which one answers
+`@claude`. If it prints none, stop: this skill cannot request
 re-reviews. Tell the user and point to `references/review-workflow.md`. Also check
 the file against that reference's checklist and note any gap in the final report.
 A missing quoted `run-name` makes Step 5 slower, not impossible, so it is not a
@@ -110,6 +116,9 @@ Check three things:
   failures* now and come back here. Steps 2–3 only handle comments; a PR with
   red CI and no threads would otherwise cycle through re-reviews while nobody
   reads the logs.
+- **CI still running?** Pending, queued and in-progress entries are not green,
+  and neither is `neutral` or `action_required`. Wait for them; only `success`
+  and `skipped` count as passing.
 - **No CI at all?** An empty `statusCheckRollup` is not green until you know
   the PR should have no checks. Run *Checking for missing CI* below.
 
@@ -170,6 +179,10 @@ The mention is what triggers the run; the rest of the comment is the brief the
 reviewer follows. Say what changed so the pass is targeted. Ask for a comment
 even when clean, so a clean pass is distinguishable from a silent one.
 
+Record the PR's `headRefOid` at this moment: it is the commit this review is
+about. Do not push again until the review finishes. A push while it runs
+leaves you unable to tell which commit it read, so the review cannot count.
+
 ### 5. Wait for the re-review to finish
 
 Poll every 60–90 seconds with `scripts/review-runs.sh <number>`.
@@ -184,9 +197,22 @@ progress` and `### Reviewing PR #<n>`, and those do not form a closed set.
 comment's `[View job](…/actions/runs/<id>)` link and reports that run's status:
 
 - Ignore rows whose comment ids you already consumed in an earlier iteration.
-- The new row's run must be `completed`. A `skipped` conclusion on a *different*
-  run is normal: each trigger can produce two runs, one that executes and one
-  skipped as a duplicate event. Gate on the run named in the comment's link.
+- A row with run id `-` has no `[View job]` link. It is either a placeholder
+  whose link has not been written yet, or a comment from another workflow (an
+  automatic review posted by a different action, for instance). Neither is the
+  review you requested, and neither ever counts toward exit condition 2. Its
+  findings still get triaged in Step 2 like any other comment.
+- The new row's run must be `completed` **with conclusion `success`**. A
+  `failure`, `cancelled` or `timed_out` run usually leaves its placeholder
+  unedited, and a placeholder has no findings, so it would read as a clean
+  pass that never happened. A failed run is no review: look at its log
+  (`gh run view <run-id> --log-failed`), then request again in Step 4.
+- The comment must also have been **edited after it was posted**
+  (`updated_at` later than `created_at`). An unedited comment is still the
+  placeholder, whatever the run says.
+- A `skipped` conclusion on a *different* run is normal: each trigger can
+  produce two runs, one that executes and one skipped as a duplicate event.
+  Gate on the run named in the comment's link.
 - Then read that comment's body by id and judge whether it raises **new
   actionable findings**:
 
@@ -220,7 +246,8 @@ Traps this avoids, each of which has produced a wrong answer in practice:
 
 Allow up to 10 minutes after the run completes for the comment to update. New
 findings go back to **Step 1**. No new findings: record that a clean re-review of
-`headRefOid` completed, and go to **Step 1** for the exit check.
+the `headRefOid` you recorded in Step 4 completed, and go to **Step 1** for the
+exit check.
 
 ## Handling CI failures
 
@@ -253,22 +280,36 @@ other iteration. Report it rather than retrying it forever.
 
 ```bash
 # 1. a workflow on the PR's head that runs on pull requests, other than a
-#    claude-code-action workflow (a review is not the CI that tests the code)
-git fetch --quiet origin "<HEAD>"
-git grep -lE '^[[:space:]]*(on:.*pull_request|pull_request(_target)?:)' "origin/<HEAD>" -- .github/workflows/ |
-  while read -r f; do git show "$f" | grep -q 'anthropics/claude-code-action' || echo "$f"; done
+#    claude-code-action workflow (a review is not the CI that tests the code).
+#    pull/<number>/head exists for fork PRs too, where origin/<HEAD> does not.
+git fetch --quiet origin "pull/<number>/head"
+git grep -lE '^[[:space:]]*(on:.*[^a-z_])?pull_request(_target)?([^a-z_]|$)' FETCH_HEAD -- .github/workflows/ |
+  while read -r f; do git show "$f" | grep -q 'anthropics/claude-code-action' || echo "${f#*:}"; done
 
 # 2. a status check the base branch requires: rulesets, then classic protection
 gh api "repos/{owner}/{repo}/rules/branches/<BASE>" \
   --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks'
-r=$(gh api "repos/{owner}/{repo}/branches/<BASE>/protection/required_status_checks" \
-  --jq '.contexts' 2>/dev/null) && echo "$r" || echo "classic: none"
+r=$(gh api "repos/{owner}/{repo}/branches/<BASE>/protection/required_status_checks" --jq '.contexts' 2>&1)
+case $r in
+  *"HTTP 404"*) echo "classic: none" ;;
+  *"HTTP 403"*) echo "classic: unknown (no admin access)" ;;
+  *) echo "classic: $r" ;;
+esac
 ```
 
 Keep the pattern POSIX (`[[:space:]]`, no `\s` or `\b`): `git grep -E` does not
-support Perl escapes and silently matches nothing with them. The classic call
-answers 404 when that protection is off or requires no checks, and `gh` prints
-the error body to stdout, hence the capture; treat it as "nothing found".
+support Perl escapes and silently matches nothing with them. The `[^a-z_]`
+guards keep `pull_request_review` and `pull_request_review_comment`, which are
+comment events, from counting as CI triggers.
+
+The classic call answers 404 when that protection is off or requires no checks:
+that is "nothing found". A 403 means the token cannot read it: that is
+**unknown**, never "none". Report it as unknown and lean on the other evidence.
+
+A matching workflow may still not run for this PR, legitimately: its
+`on.pull_request` can carry `paths:`, `paths-ignore:` or `branches:` filters.
+Before concluding that checks are missing, read those filters against the PR's
+changed files and base branch.
 
 - **Nothing expected:** the repo has no CI for this PR. Condition 3 holds; say
   so in the report, so "green" is not read as "tested".
@@ -298,9 +339,12 @@ the file is what proves it.
 Stop when **all three** hold:
 
 1. No open, unresolved threads.
-2. At least one re-review requested in this run has **completed** with no new
-   actionable findings, against the current `headRefOid`.
-3. Every `statusCheckRollup` entry passes, except one excused above. An empty
+2. At least one re-review requested in this run has **completed** (run
+   conclusion `success`, comment edited after it was posted) with no new
+   actionable findings, and the `headRefOid` recorded when you requested it is
+   the current one.
+3. Every `statusCheckRollup` entry has finished and passes, except one excused
+   above. An empty
    rollup counts only once *Checking for missing CI* has found no checks are
    expected.
 
@@ -312,7 +356,7 @@ assessment and exit having reviewed nothing.
 Before exiting, confirm HEAD has not moved since the review you rely on:
 
 ```bash
-gh pr view <number> --json headRefOid --jq .headRefOid   # must equal the reviewed one
+gh pr view <number> --json headRefOid --jq .headRefOid   # must equal the one recorded in Step 4
 ```
 
 If it moved, the review is stale: go back to **Step 4**.

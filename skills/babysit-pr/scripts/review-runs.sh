@@ -10,7 +10,10 @@
 #   comment_id  run_id  status  conclusion  created_at  updated_at
 #
 # run_id is "-" when the comment carries no [View job] link (yet), and
-# status/conclusion are "-" when there is no run to look up.
+# status/conclusion are "-" when there is no run to look up. status is
+# "unreadable" when the run exists in the link but gh cannot read it.
+# A review counts as finished only with status "completed", conclusion
+# "success" AND updated_at later than created_at (the placeholder was edited).
 #
 # Why this exists: the action posts a placeholder comment within seconds and
 # edits it in place when the review finishes, so neither the comment's presence,
@@ -59,10 +62,14 @@ printf 'comment_id\trun_id\tstatus\tconclusion\tcreated_at\tupdated_at\n'
 while IFS=$'\t' read -r comment run created updated; do
   status=- conclusion=-
   if [[ $run != - ]]; then
-    read -r status conclusion < <(
-      gh run view "$run" --json status,conclusion \
-        --jq '"\(.status) \(if .conclusion == "" then "-" else .conclusion end)"'
-    )
+    # A run can be deleted, expired or unreadable with this token. Report that
+    # in the row instead of letting set -e end the table without a word.
+    if run_info=$(gh run view "$run" --json status,conclusion \
+      --jq '"\(.status) \(if .conclusion == "" then "-" else .conclusion end)"' 2>/dev/null); then
+      read -r status conclusion <<<"$run_info"
+    else
+      status=unreadable conclusion=-
+    fi
   fi
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$comment" "$run" "$status" "$conclusion" "$created" "$updated"
 done <<<"$rows"
