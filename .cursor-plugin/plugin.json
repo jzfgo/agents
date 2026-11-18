@@ -11,5 +11,5 @@
   "repository": "https://github.com/jzfgo/agents",
   "license": "MIT",
   "keywords": ["productivity", "workflow", "skills"],
-  "skills": "./"
+  "skills": "./skills/"
 }

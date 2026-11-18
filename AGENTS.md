@@ -58,7 +58,7 @@ An array of `{ "query": "...", "should_trigger": true|false }` objects. Include 
 4. Create `skills/<skill-name>/.claude-plugin/plugin.json` with skill metadata.
 5. Run `ln -s ../../skills/<skill-name> .agents/skills/<skill-name>` and commit the symlink.
 6. Add an entry to `.claude-plugin/marketplace.json` under `plugins[]`.
-7. Add a row to the Skills table in `README.md`.
+7. Add a row to the `## Skills` table in `README.md`.
 
 ## Key Conventions
 
@@ -87,11 +87,11 @@ The `name` in `plugin.json` and in the `marketplace.json` entry must match the s
 
 ### Codex
 
-`.codex-plugin/plugin.json` at the repo root points `"skills": "./"`. Codex discovers skills automatically from subdirectories — no per-skill manifest needed.
+`.codex-plugin/plugin.json` at the repo root points `"skills": "./skills/"`. Codex discovers skills automatically from its subdirectories — no per-skill manifest needed.
 
 ### Cursor
 
-`.cursor-plugin/plugin.json` at the repo root points `"skills": "./"`. Same auto-discovery as Codex.
+`.cursor-plugin/plugin.json` at the repo root points `"skills": "./skills/"`. Same auto-discovery as Codex.
 
 ### Antigravity
 
