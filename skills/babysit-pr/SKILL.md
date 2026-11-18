@@ -103,11 +103,12 @@ gh api "repos/{owner}/{repo}/pulls/<number>/comments" --paginate   # inline (per
 scripts/review-runs.sh <number>                                     # bot review comments + their runs
 ```
 
-Check three things:
+Check each of these:
 
 - **Open threads?** Comment threads with no reply from you and not resolved.
 - **A completed, clean re-review of the current HEAD?** At least one bot review
-  has *finished* during this run (its run is `completed`, per Step 5), it raised
+  has *finished* during this run (its run is `completed` with conclusion
+  `success` and its comment was edited after posting, per Step 5), it raised
   no new actionable findings, and no commit has landed on `<HEAD>` since it
   finished. A PR with no review yet has **not** met this, so go to Step 4 rather
   than treating it as clean. Neither has a PR whose last push came after the
@@ -287,8 +288,9 @@ git grep -lE '^[[:space:]]*(on:.*[^a-z_])?pull_request(_target)?([^a-z_]|$)' FET
   while read -r f; do git show "$f" | grep -q 'anthropics/claude-code-action' || echo "${f#*:}"; done
 
 # 2. a status check the base branch requires: rulesets, then classic protection
-gh api "repos/{owner}/{repo}/rules/branches/<BASE>" \
-  --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks'
+if rs=$(gh api "repos/{owner}/{repo}/rules/branches/<BASE>" \
+  --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks' 2>&1)
+then echo "rulesets: ${rs:-none}"; else echo "rulesets: unknown ($rs)"; fi
 r=$(gh api "repos/{owner}/{repo}/branches/<BASE>/protection/required_status_checks" --jq '.contexts' 2>&1)
 case $r in
   *"HTTP 404"*) echo "classic: none" ;;
@@ -302,7 +304,8 @@ support Perl escapes and silently matches nothing with them. The `[^a-z_]`
 guards keep `pull_request_review` and `pull_request_review_comment`, which are
 comment events, from counting as CI triggers.
 
-The classic call answers 404 when that protection is off or requires no checks:
+The rulesets call answers `[]` (printed as "none") when no ruleset requires
+checks; any error there is **unknown**, not "none". The classic call answers 404 when that protection is off or requires no checks:
 that is "nothing found". A 403 means the token cannot read it: that is
 **unknown**, never "none". Report it as unknown and lean on the other evidence.
 
