@@ -45,10 +45,9 @@ lists its `bypass_actors`, given admin access:
 
 - **`CLEAN`**: GitHub sees nothing blocking.
 - **`BEHIND`**: the base moved and the strict status-check policy requires the
-  branch to catch up. This is the one status the loop can fix: rebase onto
-  `origin/<BASE>` and push with `--force-with-lease`. That push invalidates any
-  clean review you held and re-runs CI, so **rebase first, then take the
-  re-review**, or you will review twice.
+  branch to catch up. This is the one status the loop can fix, and Step 1
+  fixes it before requesting a review. Seeing it here means the base moved
+  after that review: go back to Step 1, since the rebase makes the review stale.
 - **`BLOCKED`**: some rule is unsatisfied. Name it; never report "awaiting
   approval" unless an approval rule is actually the one failing. Common causes:
   - A required check that is failing, pending or **absent**. Absent is the trap:
