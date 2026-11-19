@@ -1,10 +1,10 @@
 # The review workflow this skill drives
 
-The loop asks for re-reviews by commenting `@claude` on the PR, so the repo needs a
-workflow running `anthropics/claude-code-action` on comment events. Read this when
-Step 0 finds no such workflow, or to check the one it found. Show the user the
-gaps; do not edit the workflow from inside the loop, since a PR that edits it
-cannot be reviewed by it.
+The loop asks for re-reviews by commenting `@claude` on the PR, so the repo
+needs a workflow running `anthropics/claude-code-action` on comment events. Read
+this when Step 0 finds no such workflow, or to check the one it found. Show the
+user the gaps; do not edit the workflow from inside the loop, since a PR that
+edits it cannot be reviewed by it.
 
 When the workflow is missing, the *Minimal example* below is the template for
 the separate PR that SKILL.md's *No review workflow* offers, filled in as
@@ -52,7 +52,8 @@ only with the user's yes.
    comment, `@claude` or not, joins the group, and GitHub keeps only one
    pending run per group, so an ordinary comment would cancel a queued review.
    That same rule still applies among `@claude` requests: a third one sent
-   while the second is queued replaces it, so only the latest pending request runs.
+   while the second is queued replaces it, so only the latest pending request
+   runs.
 
 4. **A quoted `run-name` carrying the PR number.** `issue_comment` runs, the
    ones an `@claude` on the PR's conversation starts, are attributed to the
@@ -67,11 +68,12 @@ only with the user's yes.
    It must stay quoted. Unquoted, YAML reads the ` #` as the start of a comment
    and the name truncates to `Claude —`, losing the number it exists to carry.
 
-5. **If it also reviews on `pull_request`, set `track_progress` for that event.**
-   Giving the action a `prompt` makes it run in agent mode, which creates no
-   comment and gives the agent no tool to post one: the run succeeds and nobody
-   can read the review. `track_progress: true` forces the comment-posting mode
-   while keeping the prompt. Comment triggers are already in that mode.
+5. **If it also reviews on `pull_request`, set `track_progress` for that
+   event.** Giving the action a `prompt` makes it run in agent mode, which
+   creates no comment and gives the agent no tool to post one: the run succeeds
+   and nobody can read the review. `track_progress: true` forces the
+   comment-posting mode while keeping the prompt. Comment triggers are already
+   in that mode.
 
 6. **Optional: fail loudly when a PR edits the workflow.** The action refuses a
    workflow file that differs from the default branch's copy, and that refusal
@@ -154,18 +156,19 @@ jobs:
             actions: read
 ```
 
-The action posts with its own OIDC-minted token (hence `id-token: write`), so the
-read-only scopes above do not stop it commenting.
+The action posts with its own OIDC-minted token (hence `id-token: write`), so
+the read-only scopes above do not stop it commenting.
 
 ## Filling in the example
 
 Fill each placeholder from what the repo has, as SKILL.md's *No review workflow*
 reads it; never from a guess:
 
-- **`include_comments_by_actor`:** replace `<your-login>` with the trusted logins,
-  comma-separated, and keep `claude[bot]` last.
-- **The secret:** keep `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}`
-  for an OAuth token. For an API key, replace that line with
+- **`include_comments_by_actor`:** replace `<your-login>` with the trusted
+  logins, comma-separated, and keep `claude[bot]` last.
+- **The secret:** keep
+  `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}` for an OAuth
+  token. For an API key, replace that line with
   `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`. Use one, never both.
 - **Pinning:** if the repo pins actions to commit SHAs, pin both `uses:` lines
   to the latest release **of the example's major version**, with the tag as a
@@ -203,10 +206,10 @@ which is a single string:
 - `--model <id>` picks the reviewer model.
 - `--allowedTools "WebSearch,Bash(gh api:*)"` lets the reviewer check
   claims against sources and repo settings instead of recalling them.
-  `--allowedTools` is an auto-approval list: a tool left off it still exists, but
-  its call hits a permission prompt that nothing in CI can answer, so it comes
-  back denied. Note that `gh api` also accepts `-X POST` and `-X DELETE`; only
-  grant it behind the author gate of item 2.
+  `--allowedTools` is an auto-approval list: a tool left off it still exists,
+  but its call hits a permission prompt that nothing in CI can answer, so it
+  comes back denied. Note that `gh api` also accepts `-X POST` and `-X DELETE`;
+  only grant it behind the author gate of item 2.
 - Do not add `WebFetch`. The action writes its write-scoped app token into
   origin's URL in `.git/config`, Claude can read that file (read-only shell
   commands are auto-approved, and a glob such as `cat .g?t/c*` gets past
