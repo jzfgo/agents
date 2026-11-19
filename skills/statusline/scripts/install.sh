@@ -47,14 +47,20 @@ plan_file() {
   fi
 }
 
-# write_file <current file> <proposed file> <mode>: back up, then write in place
-# so that permissions and symlinks on the current file survive.
+# write_file <current file> <proposed file> <mode for a new file>: back up, then
+# write in place, so an existing file keeps its mode and symlinks survive. The
+# mode applies only to a file this script creates: settings files can hold
+# tokens under "env", and loosening a 600 file to 644 would expose them.
 write_file() {
   cmp -s "$1" "$2" 2>/dev/null && return 0
   mkdir -p "$(dirname "$1")"
-  [ -e "$1" ] && cp -p "$1" "$1.bak"
-  cat "$2" > "$1"
-  chmod "$3" "$1"
+  if [ -e "$1" ]; then
+    cp -p "$1" "$1.bak"
+    cat "$2" > "$1"
+  else
+    (umask 077; cat "$2" > "$1")
+    chmod "$3" "$1"
+  fi
 }
 
 conflict() {
@@ -104,7 +110,7 @@ case "$harness" in
 
     if [ "$yes" -eq 1 ] && [ "$changes" -gt 0 ]; then
       write_file "$script" "$assets/statusline-command.sh" 755
-      write_file "$settings" "$tmp/new.json" 644
+      write_file "$settings" "$tmp/new.json" 600
     fi
     ;;
 
