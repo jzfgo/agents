@@ -41,22 +41,33 @@ jobs:
     # trigger therefore requires a trusted author. Do not remove these checks:
     # the agent can still comment and edit through the action's own tools.
     #
-    # That gate checks who triggered the run, not who wrote what it reads. A
-    # trusted `@claude` on a fork's PR would feed a stranger's code to the
-    # agent, so the first step below refuses PRs from forks.
+    # The agent can read the action's write-scoped app token (see `claude_args`),
+    # so everything it reads must come from a trusted account too, not just the
+    # trigger. Comment triggers also require the issue's or PR's author to be
+    # trusted, `include_comments_by_actor` drops everyone else's comments from
+    # the prompt, and the first step below refuses PRs from forks. What is left
+    # is WebSearch results, and anything a trusted account pastes in.
+    #
+    # So `@claude` silently does nothing on PRs opened by bots such as
+    # Dependabot (author association CONTRIBUTOR). That is on purpose: their
+    # bodies carry upstream release notes, written by whoever maintains the
+    # dependency. Review those with Claude locally instead.
     if: |
       (github.event_name == 'pull_request' &&
         github.event.pull_request.draft == false &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)) ||
       (github.event_name == 'issue_comment' &&
         contains(github.event.comment.body, '@claude') &&
-        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)) ||
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)) ||
       (github.event_name == 'pull_request_review_comment' &&
         contains(github.event.comment.body, '@claude') &&
-        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)) ||
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)) ||
       (github.event_name == 'pull_request_review' &&
         contains(github.event.review.body, '@claude') &&
-        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association)) ||
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)) ||
       (github.event_name == 'issues' &&
         (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
@@ -82,10 +93,19 @@ jobs:
             exit 1
           fi
 
+      # Actions are pinned to a commit SHA, not a tag: a tag can be moved to
+      # other code, and this job holds the repo's Claude token. To bump one,
+      # resolve the new tag to its commit and update the trailing comment.
+      #
+      # `persist-credentials: false`: the action replaces the checkout's token
+      # with its own before Claude starts, but in agent mode it carries on if
+      # that fails, so the token is never written in the first place. The guard
+      # below fetches anonymously, which a public repo allows.
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       # On `pull_request` the checkout is the merge commit, so a PR that does not
       # touch this file compares identical to the base branch. Only
@@ -112,7 +132,7 @@ jobs:
       # The plugin reads the repo's rules from CLAUDE.md, which here is already
       # a symlink to AGENTS.md, so no extra link is needed.
       - name: Check out the review plugin at a pinned commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: anthropics/claude-plugins-official
           ref: 9780cf407f5593727b668bae95a0c4ae2e0de1ae # code-review 1.0.1, 2026-10-26
@@ -126,9 +146,14 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1.0.271
+        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          # Only these accounts' comments, reviews and inline review comments
+          # reach the prompt; anyone else's are dropped. Add a collaborator here
+          # when you add one to the repo, or their comments will be invisible.
+          include_comments_by_actor: "jzfgo,claude[bot]"
 
           # This is an optional setting that allows Claude to read CI results on PRs
           additional_permissions: |
@@ -155,7 +180,14 @@ jobs:
           # answer, so it comes back denied. This adds to the defaults.
           # - The inline-comment tool is how the plugin comments on a line;
           #   allowing it is also what makes the action start its server.
-          # - WebSearch/WebFetch let the reviewer check claims against sources.
+          # - WebSearch lets the reviewer check claims against sources.
+          # - No WebFetch. The action writes its write-scoped app token into
+          #   origin's URL in `.git/config`, and Claude can read it: Claude Code
+          #   auto-approves read-only shell commands, and a glob (`cat .g?t/c*`)
+          #   slips past `Read(./.git/**)` deny rules, so no denylist hides it.
+          #   WebFetch would let injected text send it to any server. Without it
+          #   the only way out is a comment on the PR, in public, and the token
+          #   is revoked when the job ends (the action's `Revoke app token`).
           # - No `Bash(gh api:*)`. It would let the reviewer read rulesets and
           #   run status, but a prefix rule cannot stop `-X POST`/`-X DELETE`
           #   at the end, so injected text in a PR could write through it.
@@ -167,4 +199,4 @@ jobs:
           #   own config (fsmonitor, pager) that any git call inside it obeys.
           #   The job's `contents: read` does not contain that: the action acts
           #   with its own app token. The reviewer reads code with Read and Grep.
-          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch,WebFetch"'
+          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch"'
