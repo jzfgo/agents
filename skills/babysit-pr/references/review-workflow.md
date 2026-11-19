@@ -184,8 +184,8 @@ reads it; never from a guess:
   - uses: anthropics/claude-code-action@<sha> # <tag>
   ```
 
-  Do the same for `actions/checkout`, within its `v7` major: change the regex to `^v7\\.[0-9]`. If the repo uses tags, keep the
-  example's major tags.
+  Do the same for `actions/checkout`, within its `v7` major: change the regex to
+  `^v7\\.[0-9]`. If the repo uses tags, keep the example's major tags.
 - **The runner:** if the repo's other workflows pin `runs-on` to a fixed image
   (`ubuntu-24.04`), use the same one, so a later revert of the pin covers this
   file too. Otherwise keep `ubuntu-latest`.
