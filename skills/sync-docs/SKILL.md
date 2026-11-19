@@ -146,7 +146,7 @@ through a shipping skill or ship guide, that also covers the push and the PR.
   tells agents to push and open the PR themselves (a ship guide), finish
   through it: that is how its changes land. Follow its steps up to opening
   the PR and skip any that merge, enable auto-merge, release or deploy: those
-  are the user's call, not this one's. If the user said not to push, report the branch and the
-  commit instead.
-- Without a shipping skill or ship guide, push and open a PR only if the user asked;
-  else report the branch and the commit.
+  are the user's call, not this one's. If the user said not to push, report
+  the branch and the commit instead.
+- Without a shipping skill or ship guide, push and open a PR only if the user
+  asked; else report the branch and the commit.
