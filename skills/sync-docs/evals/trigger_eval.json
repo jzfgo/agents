@@ -8,5 +8,7 @@
   {"query": "make this README read better", "should_trigger": false},
   {"query": "create a CLAUDE.md for this repo", "should_trigger": false},
   {"query": "add docstrings to these functions", "should_trigger": false},
-  {"query": "review this PR", "should_trigger": false}
+  {"query": "review this PR", "should_trigger": false},
+  {"query": "sync the docs folder to the S3 bucket", "should_trigger": false},
+  {"query": "regenerate the API docs from the OpenAPI spec", "should_trigger": false}
 ]

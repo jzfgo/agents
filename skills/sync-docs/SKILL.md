@@ -116,6 +116,9 @@ stop. Leave that one-line change uncommitted, on whatever branch is checked
 out, and say so in the report: it is not worth a branch, and committing it to
 the default branch would break the rule in step 5.
 
+If step 5 will finish through the repo's shipping skill, say so under the fix
+list, so that approving the list also approves the push and the PR.
+
 When running interactively, wait for the user to approve the fix list or trim
 it. When the user already said to fix everything, go on.
 
@@ -137,5 +140,9 @@ it. When the user already said to fix everything, go on.
 - Commit following the repo's convention, e.g.
   `docs: sync docs with <what shipped>`.
 - If the repo has its own shipping skill (such as `ship`) or a documented
-  ship flow, finish through it: that is how its changes land. Otherwise push
-  and open a PR only if the user asked; else report the branch and the commit.
+  flow for landing a branch, finish through it: that is how its changes land.
+  Go only as far as pushing and opening the PR; a merge, release or deploy
+  step in that flow is the user's call, not this one's. If the user said not
+  to push, report the branch and the commit instead.
+- Without such a skill or flow, push and open a PR only if the user asked;
+  else report the branch and the commit.

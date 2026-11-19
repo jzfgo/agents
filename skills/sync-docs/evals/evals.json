@@ -50,12 +50,13 @@
     },
     {
       "id": 5,
-      "prompt": "sync the docs, we just shipped the export feature",
-      "expected_output": "Triggers without the slash command. AGENTS.md cites `src/export/csv.ts`, which became `src/export/toCsv.ts`. The repo has a `ship` skill under .agents/skills/. Reports the finding, fixes it on a new branch once approved, commits as `docs: sync docs with export feature`, and finishes through the repo's `ship` skill, which pushes and opens the PR.",
+      "prompt": "sync the docs, we just shipped the export feature. Fix whatever you find.",
+      "expected_output": "AGENTS.md cites `src/export/csv.ts`, which became `src/export/toCsv.ts`. The repo has a `ship` skill under .agents/skills/ whose last step merges the PR. Reports the finding and says it will finish through `ship`, then fixes it on a new branch, commits as `docs: sync docs with export feature`, and runs `ship` up to pushing and opening the PR, without merging.",
       "files": [],
       "assertions": [
-        "Runs when asked in plain words, not only via /sync-docs",
-        "Finishes through the repo's own shipping skill instead of stopping at a local commit"
+        "States in the report that it will finish through the repo's shipping skill",
+        "Finishes through the repo's own shipping skill instead of stopping at a local commit",
+        "Stops after opening the PR: does not merge"
       ]
     }
   ]
