@@ -47,6 +47,11 @@ jobs:
     # trusted, `include_comments_by_actor` drops everyone else's comments from
     # the prompt, and the first step below refuses PRs from forks. What is left
     # is WebSearch results, and anything a trusted account pastes in.
+    #
+    # So `@claude` silently does nothing on PRs opened by bots such as
+    # Dependabot (author association CONTRIBUTOR). That is on purpose: their
+    # bodies carry upstream release notes, written by whoever maintains the
+    # dependency. Review those with Claude locally instead.
     if: |
       (github.event_name == 'pull_request' &&
         github.event.pull_request.draft == false &&
