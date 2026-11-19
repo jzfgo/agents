@@ -19,6 +19,9 @@ cannot be reviewed by it.
    On a public repo, gating on `@claude` alone lets any stranger drive the agent
    with whatever tools `claude_args` grants. Require
    `author_association` in `OWNER`, `MEMBER` or `COLLABORATOR`.
+   Gate the PR's author too, and set `include_comments_by_actor` to the trusted
+   accounts plus `claude[bot]`: the agent can read the action's write-scoped app
+   token, so a stranger's PR or comment must not reach the prompt either.
 
 3. **A quoted `run-name` carrying the PR number.** Comment-triggered runs are
    attributed to the default branch, so `gh run list --branch <feature>` never
@@ -72,7 +75,8 @@ jobs:
   claude:
     if: |
       contains(github.event.comment.body, '@claude') &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -87,6 +91,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          include_comments_by_actor: "<your-login>,claude[bot]"
           additional_permissions: |
             actions: read
 ```
