@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "1on1",
-      "description": "Run structured 1:1 professional check-ins between Claude Code and the user",
+      "description": "Run structured 1:1 professional check-ins between the user and their AI agent",
       "source": "./skills/1on1",
       "category": "productivity"
     },
