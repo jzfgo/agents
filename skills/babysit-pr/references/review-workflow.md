@@ -98,9 +98,14 @@ Two optional additions make reviews more trustworthy. Both go in `claude_args`,
 which is a single string:
 
 - `--model <id>` picks the reviewer model.
-- `--allowedTools "WebSearch,WebFetch,Bash(gh api:*)"` lets the reviewer check
+- `--allowedTools "WebSearch,Bash(gh api:*)"` lets the reviewer check
   claims against sources and repo settings instead of recalling them.
   `--allowedTools` is an auto-approval list: a tool left off it still exists, but
   its call hits a permission prompt that nothing in CI can answer, so it comes
   back denied. Note that `gh api` also accepts `-X POST` and `-X DELETE`; only
   grant it behind the author gate of item 2.
+- Do not add `WebFetch`. The action writes its write-scoped app token into
+  origin's URL in `.git/config`, Claude can read that file (read-only shell
+  commands are auto-approved, and a glob such as `cat .g?t/c*` gets past
+  `Read(./.git/**)` deny rules), and WebFetch would let injected text send the
+  token to any server.
