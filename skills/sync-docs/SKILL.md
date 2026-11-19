@@ -5,13 +5,14 @@ description: >-
   that drifted with the evidence, and fix it once the report is out: agent
   guidance files (AGENTS.md, CLAUDE.md and nested ones), path-scoped context
   skills, README and docs/. Verifies each checkable claim at its source of
-  truth instead of refreshing docs from memory. Invoke with /sync-docs, or
-  /sync-docs <doc-path|git-ref> to narrow the audit. Use after a feature
-  ships or before a release. Not for writing new documentation from scratch,
-  not for editing generated files such as CHANGELOG.md, and not for prose
-  polishing of docs that are already accurate.
+  truth instead of refreshing docs from memory. Use after a feature ships,
+  before a release, or when the user says "sync the docs", "are the docs up
+  to date" or "audit the docs". /sync-docs <doc-path|git-ref> narrows the
+  audit. Not for writing new documentation from scratch, not for release
+  notes, not for editing generated files such as CHANGELOG.md, not for
+  copying, publishing or deploying docs, and not for prose polishing of docs
+  that are already accurate.
 argument-hint: "[doc-path | git-ref]"
-disable-model-invocation: true
 ---
 
 # Sync Docs
@@ -116,8 +117,13 @@ stop. Leave that one-line change uncommitted, on whatever branch is checked
 out, and say so in the report: it is not worth a branch, and committing it to
 the default branch would break the rule in step 5.
 
+If step 5 will finish through the repo's shipping skill or ship guide,
+say so under the fix list, so that approving the list also approves the push
+and the PR.
+
 When running interactively, wait for the user to approve the fix list or trim
-it. When the user already said to fix everything, go on.
+it. When the user already said to fix everything, go on; if step 5 will finish
+through a shipping skill or ship guide, that also covers the push and the PR.
 
 ## 5. Fix
 
@@ -135,6 +141,12 @@ it. When the user already said to fix everything, go on.
 - Update `last_sync` in the sources file, and save the table there if the user
   accepted the offer.
 - Commit following the repo's convention, e.g.
-  `docs: sync docs with <what shipped>`. Push and open a PR only if the user
-  asked or the repo's own shipping skill or guide says to; otherwise report the
-  branch and the commit.
+  `docs: sync docs with <what shipped>`.
+- If the repo has its own shipping skill (such as `ship`), or a guide that
+  tells agents to push and open the PR themselves (a ship guide), finish
+  through it: that is how its changes land. Follow its steps up to opening
+  the PR and skip any that merge, enable auto-merge, release or deploy: those
+  are the user's call, not this one's. If the user said not to push, report
+  the branch and the commit instead.
+- Without a shipping skill or ship guide, push and open a PR only if the user
+  asked; else report the branch and the commit.
