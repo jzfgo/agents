@@ -39,7 +39,7 @@
     {
       "id": 4,
       "prompt": "/sync-docs — and just fix everything, no need to ask",
-      "expected_output": "A context skill at .agents/skills/payments/SKILL.md has `paths: [\"src/billing/**\"]`, but src/billing/ was renamed to src/payments/. Reports the dead glob, then without waiting for approval creates a branch, fixes the glob and the root AGENTS.md pointer, and commits as `docs: sync docs with ...`. The repo has no shipping skill, so it does not push or open a PR, since the user did not ask for one.",
+      "expected_output": "A context skill at .agents/skills/payments/SKILL.md has `paths: [\"src/billing/**\"]`, but src/billing/ was renamed to src/payments/. Reports the dead glob, then without waiting for approval creates a branch, fixes the glob and the root AGENTS.md pointer, and commits as `docs: sync docs with ...`. The repo has no shipping skill and no guide telling agents to push, so it does not push or open a PR, since the user did not ask for one.",
       "files": [],
       "assertions": [
         "Checks context-skill paths: globs against existing files",
