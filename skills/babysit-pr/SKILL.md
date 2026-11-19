@@ -127,8 +127,8 @@ added nothing.
 
 If it prints a path and `<BASE>` is `<DEFAULT>`, the PR you are babysitting
 installs the reviewer. Offer no second PR. *The PR edits the review workflow*
-does not apply: its "re-reviews still work" fails here, because `<DEFAULT>` has no copy to run. The action
-cannot review the PR that installs it. Check the new file against
+does not apply: its "re-reviews still work" fails here, because `<DEFAULT>`
+has no copy to run. The action cannot review the PR that installs it. Check the new file against
 `references/review-workflow.md`'s checklist, run *The pass without a reviewer*
 below, and end with the *Report*, saying that the PR needs a human review, that
 merging it is what enables re-reviews, and that the first PR mentioning `@claude`
