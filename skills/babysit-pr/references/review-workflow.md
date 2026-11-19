@@ -162,10 +162,14 @@ reads it; never from a guess:
   for an OAuth token. For an API key, replace that line with
   `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`. Use one, never both.
 - **Pinning:** if the repo pins actions to commit SHAs, pin both `uses:` lines
-  to the latest release, with the tag as a trailing comment, as the repo does:
+  to the latest release **of the example's major version**, with the tag as a
+  trailing comment, as the repo does. The latest release overall may be a new
+  major whose inputs differ from the example's; check its inputs before taking
+  it. The `v1` tag itself moves, so match full versions only:
 
   ```bash
-  tag=$(gh release view --repo anthropics/claude-code-action --json tagName --jq .tagName)
+  tag=$(gh api 'repos/anthropics/claude-code-action/releases?per_page=100' \
+    --jq '[.[] | select(.tag_name | test("^v1\\.[0-9]"))][0].tag_name')
   gh api "repos/anthropics/claude-code-action/commits/$tag" --jq .sha
   ```
 
@@ -173,7 +177,7 @@ reads it; never from a guess:
   - uses: anthropics/claude-code-action@<sha> # <tag>
   ```
 
-  Do the same for `actions/checkout`. If the repo uses tags, keep the
+  Do the same for `actions/checkout`, within its `v4` major. If the repo uses tags, keep the
   example's major tags.
 - **The runner:** if the repo's other workflows pin `runs-on` to a fixed image
   (`ubuntu-24.04`), use the same one, so a later revert of the pin covers this

@@ -68,10 +68,18 @@ comment-triggered runs execute, whatever the PR changes:
 
 ```bash
 git fetch --quiet origin "<DEFAULT>"
-for f in $(git grep -l 'anthropics/claude-code-action' "origin/<DEFAULT>" -- .github/workflows/); do
-  git show "$f" | grep -qE '^[[:space:]]*(on:.*[^a-z_])?issue_comment([^a-z_]|$)' && echo "${f#*:}"
-done
+git grep -z -l 'anthropics/claude-code-action' "origin/<DEFAULT>" -- .github/workflows/ |
+  while IFS= read -r -d '' f; do
+    git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?issue_comment([^a-z_]|$)" &&
+      echo "${f#*:}"
+  done
 ```
+
+The pattern accepts every way YAML can name the trigger: a key
+(`  issue_comment:`), a list item (`  - issue_comment`) and an inline `on:`,
+quoted or not (`'on': issue_comment`, `on: [push, issue_comment]`). The
+`[^a-z_]` guards keep `pull_request_review_comment` and an
+`if: github.event_name == 'issue_comment'` line from matching.
 
 `git grep` prints `origin/<DEFAULT>:<path>`; the loop strips the prefix and keeps
 only workflows triggered by `issue_comment`, since a repo may have several
@@ -111,19 +119,32 @@ Count only workflows the PR itself changes. Its head tree also holds whatever
 
 ```bash
 pr=<number>
-git fetch --quiet origin "pull/$pr/head"
-changed=$(gh api "repos/{owner}/{repo}/pulls/$pr/files" --paginate --jq '.[].filename') ||
+ref="refs/babysit/pr-$pr"
+if ! git fetch --quiet origin "+pull/$pr/head:$ref"; then
+  echo "unknown: could not fetch PR $pr"
+elif ! changed=$(gh api "repos/{owner}/{repo}/pulls/$pr/files" --paginate --jq '.[].filename'); then
   echo "unknown: could not list PR $pr's files"
-for f in $(git grep -l 'anthropics/claude-code-action' FETCH_HEAD -- .github/workflows/); do
-  p=${f#*:}
-  printf '%s\n' "$changed" | grep -Fxq "$p" || continue
-  git show "$f" | grep -qE '^[[:space:]]*(on:.*[^a-z_])?issue_comment([^a-z_]|$)' && echo "$p"
-done
+else
+  git grep -z -l 'anthropics/claude-code-action' "$ref" -- .github/workflows/ |
+    while IFS= read -r -d '' f; do
+      p=${f#*:}
+      printf '%s\n' "$changed" | grep -Fxq "$p" || continue
+      git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?issue_comment([^a-z_]|$)" &&
+        echo "$p"
+    done
+fi
+git update-ref -d "$ref" 2>/dev/null
 ```
 
-The files endpoint has no diff-size limit, unlike `gh pr diff`. If it fails, the
-answer is unknown, not "no": ask the user rather than going on as if the PR
-added nothing.
+Each PR gets its own ref, never `FETCH_HEAD`: when the loop runs for several
+candidates, a failed fetch would leave `FETCH_HEAD` on the previous one, and
+since they usually add the same file, one PR would be judged by another's tree.
+
+The files endpoint lists up to 3,000 files, far more than `gh pr diff` handles.
+An `unknown` line means the answer is unknown, not "no". For the PR you are
+babysitting, ask the user rather than going on as if it added nothing. For a
+candidate below, name it in the offer as one you could not check, so the user
+can rule out a duplicate before saying yes.
 
 If it prints a path and `<BASE>` is `<DEFAULT>`, the PR you are babysitting
 installs the reviewer. Offer no second PR. *The PR edits the review workflow*
@@ -148,6 +169,10 @@ gh pr list --state open --base "<DEFAULT>" --limit 100 --json number,url,files \
   --jq '.[] | select(any(.files[]; .path | startswith(".github/workflows/"))) | "\(.number) \(.url)"'
 ```
 
+`--json files` returns at most 100 files per PR. A larger PR that adds the
+workflow beyond its first 100 files is missed; mention that limit if the user
+expects one that does not show up.
+
 Run the loop above on each candidate, with `pr=<candidate>`. A candidate that
 merely edits or deletes a `pull_request`-only workflow using the action prints
 nothing, as it should. If one prints a path, open nothing new. Check its file
@@ -165,9 +190,10 @@ Otherwise, tell the user, in a few lines:
 - what you propose: a **separate** PR against `<DEFAULT>`, not a commit on the PR
   you are babysitting, that adds the workflow from the *Minimal example* in
   `references/review-workflow.md`, filled in as its *Filling in the example*
-  says and meeting its checklist (comment triggers gated on `@claude`, the
-  `author_association` gate on the commenter and on the PR's author,
-  `include_comments_by_actor`, a quoted `run-name` with the PR number);
+  says and meeting its checklist (the three comment triggers gated on
+  `@claude`, the `author_association` gate on the commenter and on the PR's
+  author, `include_comments_by_actor`, a job-level `concurrency` group with
+  `timeout-minutes`, a quoted `run-name` with the PR number);
 - what that does: creates a branch, pushes it and opens a PR others can see,
   for a workflow that will run with the repo's secrets once merged. You will
   not merge it and will not touch any secret.
@@ -190,8 +216,9 @@ review workflow, so this skill cannot request re-reviews, and
 
    - **Trusted logins** for `include_comments_by_actor`: the owner's login when
      the owner is a `User`, plus the authenticated login if it differs. If the
-     owner is an `Organization`, ask the user which logins to trust. Always
-     append `claude[bot]`.
+     owner is an `Organization`, ask the user which logins to trust. If
+     `gh api user` fails (a GitHub App installation token, as inside Actions,
+     has no user behind it), ask the user too. Always append `claude[bot]`.
    - **Secret:** if exactly one of `CLAUDE_CODE_OAUTH_TOKEN` and
      `ANTHROPIC_API_KEY` is listed, use it. If both or neither are listed, or
      the listing fails (it needs write access, and it never shows organisation
@@ -221,6 +248,9 @@ review workflow, so this skill cannot request re-reviews, and
    needs a human review because the action cannot review the PR that installs
    it. Write "the reviewer", never the `@claude` mention, in the commit and the
    body. Then remove the worktree; the branch lives on the remote.
+
+5. **Go back to the PR you are babysitting.** Run *The pass without a reviewer*
+   below on it, then end with the *Report*, as the other two paths do.
 
 **Never merge this PR and never create or edit a secret**, even when asked to in
 the same breath: both stay with the user.
@@ -465,7 +495,7 @@ other iteration. Report it rather than retrying it forever.
 #    claude-code-action workflow (a review is not the CI that tests the code).
 #    pull/<number>/head exists for fork PRs too, where origin/<HEAD> does not.
 git fetch --quiet origin "pull/<number>/head"
-git grep -lE '^[[:space:]]*(on:.*[^a-z_])?pull_request(_target)?([^a-z_]|$)' FETCH_HEAD -- .github/workflows/ |
+git grep -lE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?pull_request(_target)?([^a-z_]|$)" FETCH_HEAD -- .github/workflows/ |
   while read -r f; do git show "$f" | grep -q 'anthropics/claude-code-action' || echo "${f#*:}"; done
 
 # 2. a status check the base branch requires: rulesets, then classic protection
