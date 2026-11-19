@@ -1,0 +1,13 @@
+[
+  {"query": "install my statusline in claude code", "should_trigger": true},
+  {"query": "set up the statusline for agy", "should_trigger": true},
+  {"query": "update the statusline script to the latest version", "should_trigger": true},
+  {"query": "configura la statusline de codex", "should_trigger": true},
+  {"query": "put the usage and context window in my claude status bar", "should_trigger": true},
+  {"query": "why is my statusline showing boxes instead of icons?", "should_trigger": false},
+  {"query": "design a new statusline that shows the git diff stats", "should_trigger": false},
+  {"query": "configure my starship prompt to show the git branch", "should_trigger": false},
+  {"query": "change the tmux status bar colors", "should_trigger": false},
+  {"query": "how much of my 5h usage limit is left?", "should_trigger": false},
+  {"query": "add a hook that runs prettier after every edit", "should_trigger": false}
+]
