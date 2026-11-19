@@ -243,8 +243,13 @@ End the run here, without going through *Exit*. Say:
 - the workflow PR's link (or, if the babysat PR is itself that PR, that it
   cannot be reviewed by the action it installs and needs a human review);
 - that the user has to review and merge it into `<DEFAULT>`; this skill does not;
+- the workflow file's gaps against `references/review-workflow.md`'s checklist,
+  if any, and, for a workflow PR you did not open, who opened it;
 - the secret to create in the repo's Actions secrets, if it is missing (for
-  `CLAUDE_CODE_OAUTH_TOKEN`, `claude setup-token` prints one);
+  `CLAUDE_CODE_OAUTH_TOKEN`, `claude setup-token` prints one). On the paths
+  that skip *With the user's yes*, read the secret's name from the workflow
+  file and look for it with `gh secret list`; if that listing fails or the
+  secret may be an organisation one, say it is unknown rather than missing;
 - any decision you left to the user, such as the trusted logins;
 - what the pass did: threads answered, CI fixed or still red, and that no
   review has run, so the PR is **not** merge-ready by this skill's standard;
