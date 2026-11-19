@@ -110,7 +110,7 @@ If it does, see *The PR edits the review workflow* below before going further.
 
 Reached from Step 0 when `origin/<DEFAULT>` has no workflow that runs
 `anthropics/claude-code-action` on `issue_comment`. No re-review can happen until
-one lands on `<DEFAULT>`: comment-triggered runs execute the default branch's
+one lands on `<DEFAULT>`: `issue_comment` runs execute the default branch's
 copy, so until then an `@claude` comment on any PR starts nothing. Do not enter
 Steps 4–5 and do not wait for a review that cannot come.
 
@@ -236,7 +236,7 @@ review workflow, so this skill cannot request re-reviews, and
    Whatever creates it, the new branch must not track `origin/<DEFAULT>`.
    Name the branch after the repo's convention (`ci/claude-review-workflow` if
    it has none). The PR targets `<DEFAULT>` even when the babysat PR's `<BASE>`
-   differs: that is the copy comment-triggered runs execute.
+   differs: that is the copy `issue_comment` runs execute.
 
 3. **Write the workflow** as `.github/workflows/claude.yml`, or another free
    name if that one is taken. Parse it before committing (`actionlint` if
@@ -557,9 +557,11 @@ with the repo's secrets. Depending on how `<WORKFLOW>` is written, the PR's own
 review check then fails loudly or, worse, passes having reviewed nothing.
 
 Either way, that one check can never vouch for the PR. Do not push commits to
-turn it green, and exclude it from exit condition 3. Comment-triggered
-re-reviews still work, because they run the default branch's copy, so conditions
-1 and 2 apply in full. That copy is the *old* reviewer, though, and nothing can
+turn it green, and exclude it from exit condition 3. Step 4's re-reviews still
+work, because an `issue_comment` run executes the default branch's copy, so
+conditions 1 and 2 apply in full. An `@claude` in a review summary or an inline
+review comment does not: those events run the PR's edited copy, which the action
+refuses. That copy is the *old* reviewer, though, and nothing can
 exercise the edited workflow before merge. Say so in the report: the workflow
 change needs a human eye, and the first PR merged after it that does not touch
 the file is what proves it.

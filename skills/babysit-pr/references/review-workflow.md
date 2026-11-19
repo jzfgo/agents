@@ -54,9 +54,10 @@ only with the user's yes.
    That same rule still applies among `@claude` requests: a third one sent
    while the second is queued replaces it, so only the latest pending request runs.
 
-4. **A quoted `run-name` carrying the PR number.** Comment-triggered runs are
-   attributed to the default branch, so `gh run list --branch <feature>` never
-   finds them. A run name restores a PR-scoped handle:
+4. **A quoted `run-name` carrying the PR number.** `issue_comment` runs, the
+   ones an `@claude` on the PR's conversation starts, are attributed to the
+   default branch, so `gh run list --branch <feature>` never finds them (review
+   events are attributed to the PR's head branch). A run name restores a PR-scoped handle:
 
    ```yaml
    run-name: "Claude — #${{ github.event.issue.number || github.event.pull_request.number }}"
