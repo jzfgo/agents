@@ -13,9 +13,12 @@ only with the user's yes.
 
 ## Checklist
 
-1. **Comment triggers.** `issue_comment` (top-level PR comments) and
-   `pull_request_review_comment` (inline replies), each gated on the body
+1. **Comment triggers.** `issue_comment` (top-level PR comments),
+   `pull_request_review_comment` (inline replies) and `pull_request_review` of
+   type `submitted` (the summary of a review), each gated on its body
    containing `@claude`. Without `issue_comment`, Step 4's request never fires.
+   Without `pull_request_review`, an `@claude` in a review's summary does
+   nothing.
 
 2. **A trusted-author gate on every comment trigger.** Comment-triggered runs
    execute in the base repo's context *with its secrets*, whoever wrote the
@@ -28,7 +31,26 @@ only with the user's yes.
    accounts plus `claude[bot]`: the agent can read the action's write-scoped app
    token, so a stranger's PR or comment must not reach the prompt either.
 
-3. **A quoted `run-name` carrying the PR number.** Comment-triggered runs are
+   The PR-author gate means `@claude` does nothing on PRs opened by bots such as
+   Dependabot. That is on purpose, not a bug to fix: their bodies carry upstream
+   release notes, written by whoever maintains the dependency. Do not suggest a
+   `dependabot[bot]` exception. Review those PRs with Claude locally instead.
+   The workflow says so in a comment, so a later review does not flag it.
+
+   `include_comments_by_actor` is narrower than the `author_association` gate on
+   purpose: it lists accounts, not roles. A collaborator added to the repo can
+   trigger a run but their comments stay out of the prompt until they are added
+   to the list. The workflow says so in a comment next to the list.
+
+3. **One run per PR at a time, with a time limit.** A job-level `concurrency`
+   group keyed on the PR number makes a second `@claude` wait for the first
+   instead of racing it with overlapping reviews or pushes, and
+   `timeout-minutes` stops a hung run from billing for the six-hour default.
+   Keep the group on the job, not the workflow: at workflow level every
+   comment, `@claude` or not, joins the group, and GitHub keeps only one
+   pending run per group, so an ordinary comment would cancel a queued review.
+
+4. **A quoted `run-name` carrying the PR number.** Comment-triggered runs are
    attributed to the default branch, so `gh run list --branch <feature>` never
    finds them. A run name restores a PR-scoped handle:
 
@@ -39,13 +61,13 @@ only with the user's yes.
    It must stay quoted. Unquoted, YAML reads the ` #` as the start of a comment
    and the name truncates to `Claude —`, losing the number it exists to carry.
 
-4. **If it also reviews on `pull_request`, set `track_progress` for that event.**
+5. **If it also reviews on `pull_request`, set `track_progress` for that event.**
    Giving the action a `prompt` makes it run in agent mode, which creates no
    comment and gives the agent no tool to post one: the run succeeds and nobody
    can read the review. `track_progress: true` forces the comment-posting mode
    while keeping the prompt. Comment triggers are already in that mode.
 
-5. **Optional: fail loudly when a PR edits the workflow.** The action refuses a
+6. **Optional: fail loudly when a PR edits the workflow.** The action refuses a
    workflow file that differs from the default branch's copy, and that refusal
    can exit green having reviewed nothing. A guard step before the action, on
    `pull_request` only, turns the silence into a red check:
@@ -75,14 +97,37 @@ on:
     types: [created]
   pull_request_review_comment:
     types: [created]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   claude:
+    # Every trigger needs a trusted commenter AND a trusted PR author: the agent
+    # can read the action's write-scoped token, so nothing an outsider wrote may
+    # reach the prompt. As a result, `@claude` does nothing on PRs opened by bots
+    # such as Dependabot. That is on purpose: their bodies carry upstream release
+    # notes, written by whoever maintains the dependency. Review those locally.
     if: |
-      contains(github.event.comment.body, '@claude') &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association)
+      (github.event_name == 'issue_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)) ||
+      (github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)) ||
+      (github.event_name == 'pull_request_review' &&
+        contains(github.event.review.body, '@claude') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association) &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association))
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # One run per PR at a time: a second @claude waits for the first. On the
+    # job, not the workflow, so comments without @claude never join the group
+    # (GitHub keeps one pending run per group and would cancel the queued one).
+    concurrency:
+      group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
     permissions:
       contents: read
       pull-requests: read
@@ -96,6 +141,8 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Only these accounts' comments reach the prompt. When you add a
+          # collaborator, add them here too, or Claude will not see their comments.
           include_comments_by_actor: "<your-login>,claude[bot]"
           additional_permissions: |
             actions: read
@@ -128,9 +175,16 @@ reads it; never from a guess:
 
   Do the same for `actions/checkout`. If the repo uses tags, keep the
   example's major tags.
-- Leave everything else as it is. The checklist items it meets (the `@claude`
-  gate, both `author_association` gates, the quoted `run-name`) are the reason
-  the example exists; do not trim them to make the file shorter.
+- **The runner:** if the repo's other workflows pin `runs-on` to a fixed image
+  (`ubuntu-24.04`), use the same one, so a later revert of the pin covers this
+  file too. Otherwise keep `ubuntu-latest`.
+- Leave everything else as it is, comments included. The checklist items it
+  meets (the three `@claude` triggers, the `author_association` gates on
+  commenter and PR author, the job-level `concurrency` and `timeout-minutes`,
+  the quoted `run-name`) are the reason the example exists, and the comments
+  stop a later review from flagging the Dependabot gap and the narrow
+  `include_comments_by_actor` as bugs. Do not trim them to make the file
+  shorter.
 
 Two optional additions make reviews more trustworthy. Both go in `claude_args`,
 which is a single string:
