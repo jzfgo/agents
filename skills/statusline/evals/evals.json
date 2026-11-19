@@ -1,0 +1,49 @@
+{
+  "skill_name": "statusline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/statusline",
+      "expected_output": "Running in Claude Code with no statusline configured: runs scripts/install.sh claude without flags, shows the two '+ create' lines, asks for confirmation, and only after a yes runs scripts/install.sh claude --yes and says the statusline appears on the next message.",
+      "files": [],
+      "assertions": [
+        "Picks claude because that is the harness it runs in, without asking",
+        "The plan is shown before anything is written",
+        "--yes is not run in the same turn the plan is first shown",
+        "No file under ~/.claude is written by hand"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/statusline agy",
+      "expected_output": "~/.gemini/antigravity-cli/settings.json already has statusLine pointing at a different command: the plan exits 3, the skill shows the current statusLine and asks whether to replace it; on a yes it runs install.sh agy --replace --yes and reports that settings.json.bak holds the old file.",
+      "files": [],
+      "assertions": [
+        "Shows the user the existing statusLine value",
+        "Does not pass --replace without an explicit yes",
+        "Mentions the .bak backup after replacing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/statusline codex",
+      "expected_output": "~/.codex/config.toml has a [tui] table without status_line: the plan shows a diff inserting status_line under [tui] and nowhere else (not under [tui.*] subtables); after confirmation applies with --yes and tells the user to restart Codex, noting the single-row limitation.",
+      "files": [],
+      "assertions": [
+        "The diff only adds status_line inside [tui]",
+        "Applies only after confirmation",
+        "Tells the user to restart Codex"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/statusline claude",
+      "expected_output": "Everything already installed and identical: the plan prints 'already up to date', the skill says so and stops without asking for confirmation or running --yes.",
+      "files": [],
+      "assertions": [
+        "Does not run --yes",
+        "Reports that nothing needs changing"
+      ]
+    }
+  ]
+}

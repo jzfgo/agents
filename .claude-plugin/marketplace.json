@@ -36,6 +36,12 @@
       "description": "Audit a repo's docs against its code, report every drifted claim with evidence, then fix it",
       "source": "./skills/sync-docs",
       "category": "development"
+    },
+    {
+      "name": "statusline",
+      "description": "Install or update a two-line statusline (repo, worktree, branch, model, usage, context) for Claude Code, Antigravity CLI or Codex CLI",
+      "source": "./skills/statusline",
+      "category": "productivity"
     }
   ]
 }

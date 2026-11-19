@@ -1,0 +1,11 @@
+{
+  "name": "statusline",
+  "description": "Install or update a two-line statusline (repo, worktree, branch, model, 5h/7d usage, context) for Claude Code, Antigravity CLI or Codex CLI, with a plan-and-confirm step",
+  "author": {
+    "name": "Javier Zapata",
+    "email": "javierzapata82@gmail.com"
+  },
+  "homepage": "https://github.com/jzfgo/agents/tree/main/skills/statusline",
+  "license": "MIT",
+  "keywords": ["statusline", "claude-code", "antigravity", "codex", "terminal"]
+}
