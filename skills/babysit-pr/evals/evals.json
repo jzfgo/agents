@@ -119,6 +119,29 @@
         "Reports the checklist gaps of the added workflow, if any",
         "Says the PR needs a human review"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "/babysit-pr 45",
+      "expected_output": "The default branch has no review workflow, but PR 50, opened earlier from a fork, adds .github/workflows/claude.yml with an issue_comment trigger and no author_association gate. Opens no new workflow PR and asks nothing about creating one. Checks PR 50's file against the reference's checklist, may address PR 45's threads and CI, and reports PR 50's link, its author, the missing gate, and that /babysit-pr 45 must be re-run once a workflow is on the default branch.",
+      "files": [],
+      "assertions": [
+        "Creates no branch or PR",
+        "Reports PR 50's link and author",
+        "Reports the missing author_association gate",
+        "Does not post @claude on PR 45"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "/babysit-pr 60",
+      "expected_output": "Git-flow repo: the default branch is main and has no review workflow; PR 60 targets develop and adds .github/workflows/claude.yml. Does not treat PR 60 as the bootstrap: explains that merging it reaches only develop and enables no re-review, and goes on to offer a separate workflow PR against main, asking before creating anything.",
+      "files": [],
+      "assertions": [
+        "Does not claim merging PR 60 enables re-reviews",
+        "Offers a workflow PR against the default branch, not develop",
+        "Asks before creating anything"
+      ]
     }
   ]
 }

@@ -112,7 +112,8 @@ Count only workflows the PR itself changes. Its head tree also holds whatever
 ```bash
 pr=<number>
 git fetch --quiet origin "pull/$pr/head"
-changed=$(gh pr diff "$pr" --name-only)
+changed=$(gh api "repos/{owner}/{repo}/pulls/$pr/files" --paginate --jq '.[].filename') ||
+  echo "unknown: could not list PR $pr's files"
 for f in $(git grep -l 'anthropics/claude-code-action' FETCH_HEAD -- .github/workflows/); do
   p=${f#*:}
   printf '%s\n' "$changed" | grep -Fxq "$p" || continue
@@ -120,16 +121,22 @@ for f in $(git grep -l 'anthropics/claude-code-action' FETCH_HEAD -- .github/wor
 done
 ```
 
+The files endpoint has no diff-size limit, unlike `gh pr diff`. If it fails, the
+answer is unknown, not "no": ask the user rather than going on as if the PR
+added nothing.
+
 If it prints a path and `<BASE>` is `<DEFAULT>`, the PR you are babysitting
-installs the reviewer. (If `<BASE>` differs, merging it reaches only `<BASE>`
-and enables no re-review: say so, and carry on to the next check.) Offer no
-second PR. *The PR edits the review workflow* does not apply: its "re-reviews
-still work" fails here, because `<DEFAULT>` has no copy to run. The action
+installs the reviewer. Offer no second PR. *The PR edits the review workflow*
+does not apply: its "re-reviews still work" fails here, because `<DEFAULT>` has no copy to run. The action
 cannot review the PR that installs it. Check the new file against
 `references/review-workflow.md`'s checklist, run *The pass without a reviewer*
 below, and end with the *Report*, saying that the PR needs a human review, that
 merging it is what enables re-reviews, and that the first PR mentioning `@claude`
 after the merge is what proves the workflow works.
+
+If it prints a path but `<BASE>` differs from `<DEFAULT>`, this PR is not the
+bootstrap: merging it reaches only `<BASE>` and enables no re-review. Say so,
+and carry on to the next checks, the offer included.
 
 ### Is a workflow PR already open?
 
@@ -143,8 +150,11 @@ gh pr list --state open --base "<DEFAULT>" --limit 100 --json number,url,files \
 
 Run the loop above on each candidate, with `pr=<candidate>`. A candidate that
 merely edits or deletes a `pull_request`-only workflow using the action prints
-nothing, as it should. If one prints a path, open nothing new: run *The pass without a reviewer*
-and give the *Report* with that PR's link.
+nothing, as it should. If one prints a path, open nothing new. Check its file
+against `references/review-workflow.md`'s checklist, as for a self-installing
+PR, since anyone, a fork included, may have opened it. Then run *The pass
+without a reviewer* and give the *Report* with that PR's link, its author and
+any checklist gaps.
 
 ### Offer the workflow PR
 
