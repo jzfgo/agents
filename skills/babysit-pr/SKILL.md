@@ -109,12 +109,13 @@ Check each of these:
   `BEHIND` when the base branch requires branches to be up to date (a strict
   status-check policy) and the base has moved. Fetch it
   (`git fetch origin <BASE>`; Step 0 fetched only `<DEFAULT>`), rebase onto
-  `origin/<BASE>` and push with `--force-with-lease` now, before you request a review: the push
-  makes any review stale and re-runs CI, so a review taken first would have to
-  be taken again. Never fix it with a merge commit. Then re-read the state
-  (the first command above) and carry on with the checks below in this same
-  iteration; the rebase does not start a new one. If the rebase has conflicts
-  whose resolution is not obvious from the code, stop and report them.
+  `origin/<BASE>` and push with `--force-with-lease` now, before you request
+  a review: the push makes any review stale and re-runs CI, so a review taken
+  first would have to be taken again. Never fix it with a merge commit. Then
+  re-read the state (the first command above) and carry on with the checks
+  below in this same iteration; the rebase does not start a new one. If the
+  rebase has conflicts whose resolution is not obvious from the code, stop and
+  report them.
 - **Open threads?** Comment threads with no reply from you and not resolved.
 - **A completed, clean re-review of the current HEAD?** At least one bot review
   has *finished* during this run (its run is `completed` with conclusion
