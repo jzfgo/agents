@@ -104,6 +104,17 @@ scripts/review-runs.sh <number>                                     # bot review
 
 Check each of these:
 
+- **Behind its base?** Check this first: every check below should read the
+  rebased HEAD, not one about to be replaced. `mergeStateStatus` reads
+  `BEHIND` when the base branch requires branches to be up to date (a strict
+  status-check policy) and the base has moved. Fetch it
+  (`git fetch origin <BASE>`; Step 0 fetched only `<DEFAULT>`), rebase onto
+  `origin/<BASE>` and push with `--force-with-lease` now, before you request a review: the push
+  makes any review stale and re-runs CI, so a review taken first would have to
+  be taken again. Never fix it with a merge commit. Then re-read the state
+  (the first command above) and carry on with the checks below in this same
+  iteration; the rebase does not start a new one. If the rebase has conflicts
+  whose resolution is not obvious from the code, stop and report them.
 - **Open threads?** Comment threads with no reply from you and not resolved.
 - **A completed, clean re-review of the current HEAD?** At least one bot review
   has *finished* during this run (its run is `completed` with conclusion
@@ -121,15 +132,6 @@ Check each of these:
   and `skipped` count as passing.
 - **No CI at all?** An empty `statusCheckRollup` is not green until you know
   the PR should have no checks. Run *Checking for missing CI* below.
-- **Behind its base?** `mergeStateStatus` reads `BEHIND` when the base branch
-  requires branches to be up to date (a strict status-check policy) and the
-  base has moved. Fetch it (`git fetch origin <BASE>`; Step 0 fetched only
-  `<DEFAULT>`), rebase onto `origin/<BASE>` and push with
-  `--force-with-lease` now, before you request a review: the push makes any
-  review stale and re-runs CI, so a review taken first would have to be taken
-  again. Never fix it with a merge commit. Then return to Step 1. If the
-  rebase has conflicts whose resolution is not obvious from the code, stop and
-  report them.
 
 If threads are addressed, a clean re-review of HEAD has completed, and CI is
 green, go to *Exit*. `reviewDecision` will usually still read `REVIEW_REQUIRED`;
