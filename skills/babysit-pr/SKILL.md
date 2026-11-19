@@ -561,7 +561,7 @@ turn it green, and exclude it from exit condition 3. Step 4's re-reviews still
 work, because an `issue_comment` run executes the default branch's copy, so
 conditions 1 and 2 apply in full. An `@claude` in a review summary or an inline
 review comment does not: those events run the PR's edited copy, which the action
-refuses. That copy is the *old* reviewer, though, and nothing can
+refuses. The default branch's copy is the *old* reviewer, though, and nothing can
 exercise the edited workflow before merge. Say so in the report: the workflow
 change needs a human eye, and the first PR merged after it that does not touch
 the file is what proves it.
