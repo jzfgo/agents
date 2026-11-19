@@ -123,7 +123,8 @@ Check each of these:
   the PR should have no checks. Run *Checking for missing CI* below.
 - **Behind its base?** `mergeStateStatus` reads `BEHIND` when the base branch
   requires branches to be up to date (a strict status-check policy) and the
-  base has moved. Rebase onto `origin/<BASE>` and push with
+  base has moved. Fetch it (`git fetch origin <BASE>`; Step 0 fetched only
+  `<DEFAULT>`), rebase onto `origin/<BASE>` and push with
   `--force-with-lease` now, before you request a review: the push makes any
   review stale and re-runs CI, so a review taken first would have to be taken
   again. Never fix it with a merge commit. Then return to Step 1. If the
@@ -373,6 +374,10 @@ gh pr view <number> --json headRefOid --jq .headRefOid   # must equal the one re
 ```
 
 If it moved, the review is stale: go back to **Step 4**.
+
+Then check `mergeStateStatus`. If it reads `BEHIND`, the base moved after the
+review: go back to **Step 1**, which rebases and takes the review again. This
+re-entry counts toward the iteration cap like any other.
 
 **Short-circuit:** if `reviewDecision` is `APPROVED`, you are done early,
 regardless of condition 2.
