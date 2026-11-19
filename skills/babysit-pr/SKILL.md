@@ -64,20 +64,23 @@ git-flow repo, feature PRs target `develop` while the default branch is `main`, 
 the other way round. Every lookup below says which one it needs.
 
 Find the review workflow **as the default branch has it**. That is the copy that
-comment-triggered runs execute, whatever the PR changes:
+`issue_comment` runs execute (Step 4's `@claude` is one), whatever the PR
+changes. Review events (`pull_request_review`, `pull_request_review_comment`)
+are different: they run the PR's merge ref, and get no secrets on fork PRs.
 
 ```bash
 git fetch --quiet origin "<DEFAULT>"
 git grep -z -l 'anthropics/claude-code-action' "origin/<DEFAULT>" -- .github/workflows/ |
   while IFS= read -r -d '' f; do
-    git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?issue_comment([^a-z_]|$)" &&
+    git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?[\"']?issue_comment([^a-z_]|$)" &&
       echo "${f#*:}"
   done
 ```
 
 The pattern accepts every way YAML can name the trigger: a key
 (`  issue_comment:`), a list item (`  - issue_comment`) and an inline `on:`,
-quoted or not (`'on': issue_comment`, `on: [push, issue_comment]`). The
+with the key or the name quoted or not (`'on': issue_comment`,
+`  - 'issue_comment'`, `on: [push, issue_comment]`). The
 `[^a-z_]` guards keep `pull_request_review_comment` and an
 `if: github.event_name == 'issue_comment'` line from matching.
 
@@ -129,7 +132,7 @@ else
     while IFS= read -r -d '' f; do
       p=${f#*:}
       printf '%s\n' "$changed" | grep -Fxq "$p" || continue
-      git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?issue_comment([^a-z_]|$)" &&
+      git show "$f" | grep -qE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?[\"']?issue_comment([^a-z_]|$)" &&
         echo "$p"
     done
 fi
@@ -494,9 +497,18 @@ other iteration. Report it rather than retrying it forever.
 # 1. a workflow on the PR's head that runs on pull requests, other than a
 #    claude-code-action workflow (a review is not the CI that tests the code).
 #    pull/<number>/head exists for fork PRs too, where origin/<HEAD> does not.
-git fetch --quiet origin "pull/<number>/head"
-git grep -lE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?pull_request(_target)?([^a-z_]|$)" FETCH_HEAD -- .github/workflows/ |
-  while read -r f; do git show "$f" | grep -q 'anthropics/claude-code-action' || echo "${f#*:}"; done
+#    Its own ref, not FETCH_HEAD: Step 0 fetched <DEFAULT>, so a failed fetch
+#    would leave FETCH_HEAD there and report the default branch's CI as the PR's.
+ref="refs/babysit/pr-<number>"
+if git fetch --quiet origin "+pull/<number>/head:$ref"; then
+  git grep -z -lE "^[[:space:]]*(-[[:space:]]+|[\"']?on[\"']?:.*[^a-z_])?[\"']?pull_request(_target)?([^a-z_]|$)" "$ref" -- .github/workflows/ |
+    while IFS= read -r -d '' f; do
+      git show "$f" | grep -q 'anthropics/claude-code-action' || echo "${f#*:}"
+    done
+else
+  echo "unknown: could not fetch PR <number>"
+fi
+git update-ref -d "$ref" 2>/dev/null
 
 # 2. a status check the base branch requires: rulesets, then classic protection
 if rs=$(gh api "repos/{owner}/{repo}/rules/branches/<BASE>" \

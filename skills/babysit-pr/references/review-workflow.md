@@ -20,10 +20,12 @@ only with the user's yes.
    Without `pull_request_review`, an `@claude` in a review's summary does
    nothing.
 
-2. **A trusted-author gate on every comment trigger.** Comment-triggered runs
+2. **A trusted-author gate on every comment trigger.** `issue_comment` runs
    execute in the base repo's context *with its secrets*, whoever wrote the
-   comment. GitHub withholds secrets from `pull_request` runs from forks (and
-   from Dependabot-triggered runs), not from comment events.
+   comment. GitHub withholds secrets from fork PRs only on the pull-request
+   events (`pull_request`, `pull_request_review`, `pull_request_review_comment`)
+   and on Dependabot-triggered runs; on a same-repo PR those review events get
+   secrets too, whoever wrote the review.
    On a public repo, gating on `@claude` alone lets any stranger drive the agent
    with whatever tools `claude_args` grants. Require
    `author_association` in `OWNER`, `MEMBER` or `COLLABORATOR`.
@@ -49,6 +51,8 @@ only with the user's yes.
    Keep the group on the job, not the workflow: at workflow level every
    comment, `@claude` or not, joins the group, and GitHub keeps only one
    pending run per group, so an ordinary comment would cancel a queued review.
+   That same rule still applies among `@claude` requests: a third one sent
+   while the second is queued replaces it, so only the latest pending request runs.
 
 4. **A quoted `run-name` carrying the PR number.** Comment-triggered runs are
    attributed to the default branch, so `gh run list --branch <feature>` never
@@ -135,7 +139,7 @@ jobs:
       id-token: write
       actions: read # lets the reviewer read CI results
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
       - uses: anthropics/claude-code-action@v1
@@ -169,15 +173,16 @@ reads it; never from a guess:
 
   ```bash
   tag=$(gh api 'repos/anthropics/claude-code-action/releases?per_page=100' \
-    --jq '[.[] | select(.tag_name | test("^v1\\.[0-9]"))][0].tag_name')
-  gh api "repos/anthropics/claude-code-action/commits/$tag" --jq .sha
+    --jq '[.[] | select((.prerelease | not) and (.tag_name | test("^v1\\.[0-9]")))][0].tag_name // empty')
+  [ -n "$tag" ] || echo "no v1 release found: stop and check the major" >&2
+  [ -n "$tag" ] && gh api "repos/anthropics/claude-code-action/commits/$tag" --jq .sha
   ```
 
   ```yaml
   - uses: anthropics/claude-code-action@<sha> # <tag>
   ```
 
-  Do the same for `actions/checkout`, within its `v4` major. If the repo uses tags, keep the
+  Do the same for `actions/checkout`, within its `v7` major: change the regex to `^v7\\.[0-9]`. If the repo uses tags, keep the
   example's major tags.
 - **The runner:** if the repo's other workflows pin `runs-on` to a fixed image
   (`ubuntu-24.04`), use the same one, so a later revert of the pin covers this
