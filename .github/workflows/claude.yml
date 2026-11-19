@@ -179,4 +179,14 @@ jobs:
           #   own config (fsmonitor, pager) that any git call inside it obeys.
           #   The job's `contents: read` does not contain that: the action acts
           #   with its own app token. The reviewer reads code with Read and Grep.
-          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch,WebFetch"'
+          #
+          # `--disallowedTools` keeps the action's write-scoped app token out of
+          # Claude's reach, so WebFetch cannot carry it off. The action writes
+          # it into origin's URL in `.git/config` (`persist-credentials` does not
+          # change that). Reading the file is denied by `Read(./.git/**)`, which
+          # also blocks `cat`/`grep`/`sed` on it via Bash. Claude Code auto-approves
+          # read-only git commands even with no Bash rule, so the ones that print
+          # the URL or read arbitrary files (`remote`, `config`, `ls-remote`,
+          # `var`, `diff --no-index`, and `-C`/`-c` wrappers around them) are
+          # denied by prefix. `git add/commit/rm` for `@claude` still work.
+          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch,WebFetch" --disallowedTools "Read(./.git/**),Bash(git remote:*),Bash(git config:*),Bash(git ls-remote:*),Bash(git var:*),Bash(git diff --no-index:*),Bash(git -C:*),Bash(git -c:*)"'
