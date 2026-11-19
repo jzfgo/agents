@@ -72,6 +72,15 @@ jobs:
         (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')) &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
     runs-on: ubuntu-latest
+    # A hung run would otherwise bill for GitHub's six-hour default.
+    timeout-minutes: 30
+    # One run per PR or issue at a time: a second @claude waits for the first
+    # instead of racing it. On the job, not the workflow, so comments without
+    # @claude never join the group (GitHub keeps one pending run per group and
+    # would cancel the queued one).
+    concurrency:
+      group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
     permissions:
       contents: read
       pull-requests: read
