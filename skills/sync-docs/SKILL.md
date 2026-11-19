@@ -117,13 +117,13 @@ stop. Leave that one-line change uncommitted, on whatever branch is checked
 out, and say so in the report: it is not worth a branch, and committing it to
 the default branch would break the rule in step 5.
 
-If step 5 will finish through the repo's shipping skill or agent ship guide,
+If step 5 will finish through the repo's shipping skill or ship guide,
 say so under the fix list, so that approving the list also approves the push
 and the PR.
 
 When running interactively, wait for the user to approve the fix list or trim
-it. When the user already said to fix everything, go on: that covers the push
-and the PR too.
+it. When the user already said to fix everything, go on; if step 5 will finish
+through a shipping skill or ship guide, that also covers the push and the PR.
 
 ## 5. Fix
 
@@ -143,10 +143,10 @@ and the PR too.
 - Commit following the repo's convention, e.g.
   `docs: sync docs with <what shipped>`.
 - If the repo has its own shipping skill (such as `ship`), or a guide that
-  tells agents to push and open the PR themselves, finish through it: that is
-  how its changes land. Follow its steps up to opening the PR and skip any
-  that merge, enable auto-merge, release or deploy: those are the user's call,
-  not this one's. If the user said not to push, report the branch and the
+  tells agents to push and open the PR themselves (a ship guide), finish
+  through it: that is how its changes land. Follow its steps up to opening
+  the PR and skip any that merge, enable auto-merge, release or deploy: those
+  are the user's call, not this one's. If the user said not to push, report the branch and the
   commit instead.
-- Without such a skill or guide, push and open a PR only if the user asked;
+- Without a shipping skill or ship guide, push and open a PR only if the user asked;
   else report the branch and the commit.
