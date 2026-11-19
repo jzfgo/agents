@@ -5,13 +5,13 @@ description: >-
   that drifted with the evidence, and fix it once the report is out: agent
   guidance files (AGENTS.md, CLAUDE.md and nested ones), path-scoped context
   skills, README and docs/. Verifies each checkable claim at its source of
-  truth instead of refreshing docs from memory. Invoke with /sync-docs, or
-  /sync-docs <doc-path|git-ref> to narrow the audit. Use after a feature
-  ships or before a release. Not for writing new documentation from scratch,
+  truth instead of refreshing docs from memory. Use after a feature ships,
+  before a release, or when the user says "sync the docs", "are the docs up
+  to date" or "audit the docs". /sync-docs <doc-path|git-ref> narrows the
+  audit. Not for writing new documentation from scratch,
   not for editing generated files such as CHANGELOG.md, and not for prose
   polishing of docs that are already accurate.
 argument-hint: "[doc-path | git-ref]"
-disable-model-invocation: true
 ---
 
 # Sync Docs
@@ -135,6 +135,7 @@ it. When the user already said to fix everything, go on.
 - Update `last_sync` in the sources file, and save the table there if the user
   accepted the offer.
 - Commit following the repo's convention, e.g.
-  `docs: sync docs with <what shipped>`. Push and open a PR only if the user
-  asked or the repo's own shipping skill or guide says to; otherwise report the
-  branch and the commit.
+  `docs: sync docs with <what shipped>`.
+- If the repo has its own shipping skill (such as `ship`) or a documented
+  ship flow, finish through it: that is how its changes land. Otherwise push
+  and open a PR only if the user asked; else report the branch and the commit.
