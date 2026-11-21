@@ -94,6 +94,15 @@ only with the user's yes.
    Replace `.github/workflows/claude.yml` with the workflow's own path if it
    lives elsewhere.
 
+7. **No background tasks.** The run is headless: it never gets the
+   notification that a background task finished, and never wakes from a
+   `ScheduleWakeup`. An agent that starts its reviewers in the background, or
+   schedules a wakeup, ends its turn "waiting on them", and the run exits green
+   having posted nothing. A prompt asking for the foreground is only a
+   suggestion, so take the option away instead: set
+   `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"` in the action step's `env:`, and
+   add `--disallowedTools "ScheduleWakeup"` to `claude_args`.
+
 ## Minimal example
 
 ```yaml
@@ -154,6 +163,12 @@ jobs:
           include_comments_by_actor: "<your-login>,claude[bot]"
           additional_permissions: |
             actions: read
+          # A headless run never wakes from a wakeup it schedules.
+          claude_args: '--disallowedTools "ScheduleWakeup"'
+        # Background tasks never report back to a headless run: the agent
+        # would end its turn waiting on them and post nothing.
+        env:
+          CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
 ```
 
 The action posts with its own OIDC-minted token (hence `id-token: write`), so
@@ -195,13 +210,14 @@ reads it; never from a guess:
 - Leave everything else as it is, comments included. The checklist items it
   meets (the three `@claude` triggers, the `author_association` gates on
   commenter and PR author, the job-level `concurrency` and `timeout-minutes`,
-  the quoted `run-name`) are the reason the example exists, and the comments
-  stop a later review from flagging the Dependabot gap and the narrow
-  `include_comments_by_actor` as bugs. Do not trim them to make the file
+  the quoted `run-name`, no background tasks) are the reason the example
+  exists, and the comments stop a later review from flagging the Dependabot
+  gap and the narrow `include_comments_by_actor` as bugs. Do not trim them to make the file
   shorter.
 
-Two optional additions make reviews more trustworthy. Both go in `claude_args`,
-which is a single string:
+Two optional additions make reviews more trustworthy. Both go in the
+example's `claude_args`, which is a single string, after
+`--disallowedTools "ScheduleWakeup"`:
 
 - `--model <id>` picks the reviewer model.
 - `--allowedTools "WebSearch,Bash(gh api:*)"` lets the reviewer check

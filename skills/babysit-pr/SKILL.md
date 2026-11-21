@@ -196,7 +196,8 @@ Otherwise, tell the user, in a few lines:
   says and meeting its checklist (the three comment triggers gated on
   `@claude`, the `author_association` gate on the commenter and on the PR's
   author, `include_comments_by_actor`, a job-level `concurrency` group with
-  `timeout-minutes`, a quoted `run-name` with the PR number);
+  `timeout-minutes`, a quoted `run-name` with the PR number, background
+  tasks and `ScheduleWakeup` disabled);
 - what that does: creates a branch, pushes it and opens a PR others can see,
   for a workflow that will run with the repo's secrets once merged. You will
   not merge it and will not touch any secret.

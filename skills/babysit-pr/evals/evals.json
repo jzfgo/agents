@@ -90,7 +90,7 @@
         "Asks for confirmation before creating any branch, push or PR",
         "The workflow PR is separate from PR 45 and targets the default branch",
         "Reads the owner login, the secret names and the SHA-pinning convention before writing the workflow",
-        "The workflow keeps the three @claude-gated triggers, both author_association gates, include_comments_by_actor, the job-level concurrency group with timeout-minutes and a quoted run-name with the PR number",
+        "The workflow keeps the three @claude-gated triggers, both author_association gates, include_comments_by_actor, the job-level concurrency group with timeout-minutes, a quoted run-name with the PR number, CLAUDE_CODE_DISABLE_BACKGROUND_TASKS in the action step's env and --disallowedTools \"ScheduleWakeup\" in claude_args",
         "After opening the workflow PR, runs the pass without a reviewer on PR 45 and ends with the Report",
         "Never runs gh pr merge and never runs gh secret set",
         "Never posts a comment mentioning @claude on PR 45",
