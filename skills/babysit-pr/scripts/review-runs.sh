@@ -73,13 +73,23 @@ if [[ -z $rows ]]; then
   exit 0
 fi
 
-# pull_request runs carry the PR's head branch, unlike issue_comment runs, so
-# --branch finds them. Read once; a failure only disables the matching.
+# pull_request runs carry the PR's head branch, unlike issue_comment runs, so a
+# branch filter finds them. A branch name is not unique, though: a fork or an
+# older PR may use the same one. So keep only runs that GitHub links to this PR
+# and that came from the PR's own head repository. (GitHub leaves
+# pull_requests empty on fork runs, so a fork PR's review stays unmatched.)
+# Read once; a failure only disables the matching.
 auto_runs='[]'
 if [[ -n $workflow ]]; then
-  if head=$(gh pr view "$pr" --json headRefName --jq .headRefName 2>/dev/null) &&
-    runs=$(gh run list --workflow "$workflow" --event pull_request --branch "$head" \
-      --limit 50 --json databaseId,status,conclusion,createdAt,updatedAt,headSha 2>/dev/null); then
+  if read -r head head_repo < <(gh pr view "$pr" --json headRefName,headRepository \
+    --jq '"\(.headRefName) \(.headRepository.nameWithOwner)"' 2>/dev/null) &&
+    runs=$(gh api -X GET "repos/{owner}/{repo}/actions/workflows/$workflow/runs" \
+      -f event=pull_request -f branch="$head" -F per_page=50 2>/dev/null) &&
+    runs=$(jq --argjson pr "$pr" --arg repo "$head_repo" '
+        [ .workflow_runs[]
+          | select(any(.pull_requests[]; .number == $pr) and .head_repository.full_name == $repo)
+          | { databaseId: .id, status, conclusion: (.conclusion // ""),
+              createdAt: .created_at, updatedAt: .updated_at, headSha: .head_sha } ]' <<<"$runs"); then
     auto_runs=$runs
   else
     echo "could not list $workflow's pull_request runs; automatic reviews stay unmatched" >&2
