@@ -33,7 +33,10 @@
 # `gh pr comment`) leaves no [View job] link. Given the workflow file that runs
 # it as the third argument, a comment without a link is matched to that
 # workflow's pull_request run on the PR's head branch that was running when the
-# comment was posted. Exactly one such run must match, or the row keeps "-".
+# comment was posted. Only a comment that opens with the plugin's summary
+# heading ("## Code review") is matched: any other linkless comment (a
+# placeholder from another workflow, say) is no review and keeps "-". Exactly
+# one such run must match, or the row keeps "-".
 #
 # Needs gh (authenticated) and jq. Uses the current repo, or GH_REPO if set.
 
@@ -64,7 +67,8 @@ rows=$(
       | [ (.id | tostring),
           (first(.body | capture("\\[View job[^\\]]*\\]\\([^)]*/runs/(?<r>[0-9]+)") | .r) // "-"),
           .created_at,
-          .updated_at ]
+          .updated_at,
+          (if .body | test("^#+[[:space:]]*Code review") then "summary" else "-" end) ]
       | @tsv' <<<"$comments"
 )
 
@@ -97,7 +101,7 @@ if [[ -n $workflow ]]; then
 fi
 
 printf 'comment_id\trun_id\tvia\tstatus\tconclusion\tcreated_at\tupdated_at\treviewed_sha\n'
-while IFS=$'\t' read -r comment run created updated; do
+while IFS=$'\t' read -r comment run created updated kind; do
   via=- status=- conclusion=- sha=-
   if [[ $run != - ]]; then
     via="link"
@@ -109,7 +113,7 @@ while IFS=$'\t' read -r comment run created updated; do
     else
       status=unreadable conclusion=-
     fi
-  else
+  elif [[ $kind == summary ]]; then
     # The run was going when the comment was posted: it started before, and it
     # either is still going or last changed (completed) after. ISO-8601 UTC
     # timestamps compare correctly as strings.

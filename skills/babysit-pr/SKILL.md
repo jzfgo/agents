@@ -335,7 +335,8 @@ Check each of these:
   The automatic first review also meets this, though nobody requested it in
   this run: a row with `via` set to `time`, status `completed`, conclusion
   `success`, a `reviewed_sha` equal to the current `headRefOid`, and a body
-  with no actionable findings. Record that `reviewed_sha` as the reviewed
+  that is the plugin's summary (`## Code review`) reporting no actionable
+  findings. The script pairs only comments that open with that heading. Record that `reviewed_sha` as the reviewed
   commit, as Step 4 would. Any push after the PR opened leaves `reviewed_sha`
   behind HEAD, and then Step 4 is still needed.
 - **Red CI?** If any `statusCheckRollup` entry is failing, go to *Handling CI
@@ -427,7 +428,9 @@ comment's `[View job](…/actions/runs/<id>)` link and reports that run's status
 - Ignore rows whose comment ids you already consumed in an earlier iteration.
 - A row with `via` set to `time` is the automatic `pull_request` review: its
   comment has no `[View job]` link, so the script paired it with the one run of
-  `<AUTO>` on the PR's branch that was going when the comment was posted. It
+  `<AUTO>` on the PR's branch that was going when the comment was posted. Only
+  a comment opening with the plugin's `## Code review` heading is paired, so a
+  linkless placeholder from another workflow keeps `-`. It
   is never the review you requested, but Step 1 lets it count when its
   `reviewed_sha` is the current HEAD. It posts once, with no placeholder, so
   the edit check below does not apply to it.

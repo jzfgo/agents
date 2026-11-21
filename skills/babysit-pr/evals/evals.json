@@ -166,6 +166,17 @@
         "Does not count the automatic review toward exit condition 2",
         "Requests a re-review with an @claude comment"
       ]
+    },
+    {
+      "id": 15,
+      "prompt": "/babysit-pr 72",
+      "expected_output": "PR 72 is in a repo where the automatic review and the @claude reviewer are separate workflows. While the automatic run 9002 (completed, success, reviewed_sha equal to HEAD) was going, the other workflow posted a linkless placeholder, \"### Reviewing PR #72\", and nothing else. review-runs.sh pairs only comments that open with \"## Code review\", so the placeholder row keeps run id - and via -. Does not count it as a clean review and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Does not treat the placeholder as a via-time review",
+        "Does not count any review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
     }
   ]
 }
