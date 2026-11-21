@@ -327,9 +327,8 @@ Check each of these:
 - **A completed, clean re-review of the current HEAD?** At least one bot review
   has *finished* during this run (its run is `completed` with conclusion
   `success`, its comment was edited after posting and `written` reads `yes`,
-  per Step 5), it raised
-  no new actionable findings, and no commit has landed on `<HEAD>` since it
-  finished. A PR with no review yet has **not** met this, so go to Step 4 rather
+  per Step 5), it raised no new actionable findings, and no commit has landed
+  on `<HEAD>` since it finished. A PR with no review yet has **not** met this, so go to Step 4 rather
   than treating it as clean. Neither has a PR whose last push came after the
   review, even a push that only fixed CI.
 
@@ -622,9 +621,8 @@ Stop when **all three** hold:
 1. No open, unresolved threads.
 2. At least one re-review requested in this run has **completed** (run
    conclusion `success`, comment edited after it was posted, `written` `yes`)
-   with no new
-   actionable findings, and the `headRefOid` recorded when you requested it is
-   the current one. A clean automatic review whose `reviewed_sha` is the
+   with no new actionable findings, and the `headRefOid` recorded when you
+   requested it is the current one. A clean automatic review whose `reviewed_sha` is the
    current HEAD counts the same (see Step 1).
 3. Every `statusCheckRollup` entry has finished and passes, except one excused
    above. An empty

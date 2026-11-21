@@ -234,7 +234,10 @@ jobs:
           #   also block the read-only `git diff` and `git log`, and tag mode
           #   has no other way to see the diff. A deny rule wins over the
           #   action's own allow list. An `@claude` run keeps the write commands
-          #   and the edit tools, so it can still push a fix when asked.
+          #   and the edit tools, so it can still push a fix when asked. This
+          #   list is complete only while `use_commit_signing` is off: with it
+          #   on, the action commits through its `mcp__github_file_ops__*`
+          #   tools, which would need denying too.
           claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch" --disallowedTools "${{ github.event_name == ''pull_request'' && ''ScheduleWakeup,Bash(git add:*),Bash(git commit:*),Bash(git rm:*),Edit,MultiEdit,Write,NotebookEdit'' || ''ScheduleWakeup'' }}"'
         # Subagents must run in the foreground. Launched in the background, the
         # main agent ends its turn "waiting on them", the headless session
@@ -243,10 +246,11 @@ jobs:
         # nothing. The variable removes `run_in_background` from Agent and
         # Bash, and the action passes the step's environment to Claude. A
         # prompt asking for the foreground would be a suggestion only; this
-        # leaves the agent no background option it is allowed to use (Monitor and MCP tasks still background, but Monitor is not in
+        # leaves the agent no background option it is allowed to use (Monitor
+        # and MCP tasks still background, but Monitor is not in
         # `--allowedTools`, so CI denies it, and none of the action's MCP
-        # servers run tools as tasks). `ScheduleWakeup` is disallowed
-        # for the same reason: a headless session never wakes up, so a
-        # scheduled wakeup only ends the turn early.
+        # servers run tools as tasks). `ScheduleWakeup` is disallowed for the
+        # same reason: a headless session never wakes up, so a scheduled
+        # wakeup only ends the turn early.
         env:
           CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"

@@ -75,6 +75,20 @@ only with the user's yes.
    comment-posting mode while keeping the prompt. Comment triggers are already
    in that mode.
 
+   That mode also hands every run `acceptEdits` and the action's
+   `git add`/`commit`/`rm` rules with its push wrapper, so that an `@claude`
+   run can push a fix. An automatic review only needs to read and comment, so
+   deny those on `pull_request` alone. A deny rule wins over the action's own
+   allow list; leave the rest of Bash alone, since the read-only `git diff`
+   and `git log` are how the agent sees the diff:
+
+   ```yaml
+   claude_args: '--disallowedTools "${{ github.event_name == ''pull_request'' && ''ScheduleWakeup,Bash(git add:*),Bash(git commit:*),Bash(git rm:*),Edit,MultiEdit,Write,NotebookEdit'' || ''ScheduleWakeup'' }}"'
+   ```
+
+   With `use_commit_signing` on, the action commits through its
+   `mcp__github_file_ops__*` tools instead, and those need denying too.
+
 6. **Optional: fail loudly when a PR edits the workflow.** The action refuses a
    workflow file that differs from the default branch's copy, and that refusal
    can exit green having reviewed nothing. A guard step before the action, on
