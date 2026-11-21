@@ -8,7 +8,7 @@
 #          GH_REPO=owner/repo review-runs.sh 42
 #
 # Output (TSV, one row per bot comment, in comment order):
-#   comment_id  run_id  via  status  conclusion  created_at  updated_at  reviewed_sha
+#   comment_id  run_id  via  status  conclusion  created_at  updated_at  reviewed_sha  written
 #
 # via says where run_id came from: "link" (the comment's [View job] link),
 # "auto" (that link, to an automatic pull_request run in tag mode), "time"
@@ -24,6 +24,15 @@
 # reviewed_sha is the PR head commit an "auto" or "time" run was started for,
 # and "-" for "link" rows: an issue_comment run reports the default branch's
 # commit, not the one it reviewed.
+#
+# written is "no" when the body still holds the action's spinner image or its
+# untouched placeholder line ("I'll analyze this and get back to you."), and
+# "yes" otherwise. The agent's first edit of a tag-mode comment is its
+# progress checklist, with the spinner, so an edit alone does not mean the
+# review was written. When the run ends, the action strips only its own
+# "Claude Code is working…" line and keeps the rest, so a run that ended green
+# without the agent finishing still shows the spinner or the placeholder line.
+# A "link" or "auto" review counts only with written "yes" as well.
 #
 # Why this exists: the action posts a placeholder comment within seconds and
 # edits it in place when the review finishes, so neither the comment's presence,
@@ -64,15 +73,21 @@ if ! comments=$(gh api "repos/{owner}/{repo}/issues/$pr/comments" --paginate); t
   exit 1
 fi
 
+# The action's spinner image, as its src/github/operations/comments/common.ts
+# defines it at the pinned v1.0.271.
+spinner=5ac382c7-e004-429b-8e35-7feb3e8f9c6f
+
 rows=$(
-  jq -r --arg bot "$bot" '
+  jq -r --arg bot "$bot" --arg spinner "$spinner" '
       .[]
       | select(.user.login == $bot)
       | [ (.id | tostring),
           (first(.body | capture("\\[View job[^\\]]*\\]\\([^)]*/runs/(?<r>[0-9]+)") | .r) // "-"),
           .created_at,
           .updated_at,
-          (if .body | test("^##[[:space:]]+Code review[[:space:]]*(\n|$)") then "summary" else "-" end) ]
+          (if .body | test("^##[[:space:]]+Code review[[:space:]]*(\n|$)") then "summary" else "-" end),
+          (if (.body | contains($spinner)) or (.body | contains("I'"'"'ll analyze this and get back to you."))
+             then "no" else "yes" end) ]
       | @tsv' <<<"$comments"
 )
 
@@ -104,8 +119,8 @@ if [[ -n $workflow ]]; then
   fi
 fi
 
-printf 'comment_id\trun_id\tvia\tstatus\tconclusion\tcreated_at\tupdated_at\treviewed_sha\n'
-while IFS=$'\t' read -r comment run created updated kind; do
+printf 'comment_id\trun_id\tvia\tstatus\tconclusion\tcreated_at\tupdated_at\treviewed_sha\twritten\n'
+while IFS=$'\t' read -r comment run created updated kind written; do
   via=- status=- conclusion=- sha=-
   if [[ $run != - ]]; then
     via="link"
@@ -136,5 +151,5 @@ while IFS=$'\t' read -r comment run created updated kind; do
       via="time"
     fi
   fi
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$comment" "$run" "$via" "$status" "$conclusion" "$created" "$updated" "$sha"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$comment" "$run" "$via" "$status" "$conclusion" "$created" "$updated" "$sha" "$written"
 done <<<"$rows"

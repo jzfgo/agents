@@ -326,7 +326,8 @@ Check each of these:
 - **Open threads?** Comment threads with no reply from you and not resolved.
 - **A completed, clean re-review of the current HEAD?** At least one bot review
   has *finished* during this run (its run is `completed` with conclusion
-  `success` and its comment was edited after posting, per Step 5), it raised
+  `success`, its comment was edited after posting and `written` reads `yes`,
+  per Step 5), it raised
   no new actionable findings, and no commit has landed on `<HEAD>` since it
   finished. A PR with no review yet has **not** met this, so go to Step 4 rather
   than treating it as clean. Neither has a PR whose last push came after the
@@ -336,7 +337,8 @@ Check each of these:
   this run: a row with `via` set to `auto` or `time`, status `completed`,
   conclusion `success`, a `reviewed_sha` equal to the current `headRefOid`, and
   no actionable findings. An `auto` row is a tag-mode review with a
-  `[View job]` link, so its comment must also have been edited after posting;
+  `[View job]` link, so its comment must also have been edited after posting
+  and its `written` column must read `yes`;
   a `time` row is the code-review plugin's summary (`## Code review`), the only
   linkless comment the script pairs.
   Record that `reviewed_sha` as the reviewed commit, as Step 4 would. Any push
@@ -458,8 +460,17 @@ comment's `[View job](…/actions/runs/<id>)` link and reports that run's status
   (`gh run view <run-id> --log-failed`), then request again in Step 4.
 - The comment must also have been **edited after it was posted**
   (`updated_at` later than `created_at`). An unedited comment is still the
-  placeholder, whatever the run says. This guards against a run killed
+  placeholder, whatever the run says. This guards against a run that ended
   before the action could rewrite its comment.
+- On a linked row, `written` must read `yes`. An edit alone is not enough:
+  the agent's first edit is its progress checklist, with the action's
+  spinner, and it fills in the findings only at the end. If it ends its turn
+  before that (a subagent left in the background, a turn limit), the run
+  still concludes `success`, and the action rewrites the comment with its
+  `Claude finished` header over whatever the agent last wrote. That reads like
+  a clean pass. The script reports `written` `no` while the body holds the
+  spinner or the action's untouched placeholder line. Such a row is no review:
+  request again in Step 4, asking for the findings to be written out in full.
 - A `skipped` conclusion on a *different* run is normal: each trigger can
   produce two runs, one that executes and one skipped as a duplicate event.
   Gate on the run named in the comment's link.
@@ -610,7 +621,8 @@ Stop when **all three** hold:
 
 1. No open, unresolved threads.
 2. At least one re-review requested in this run has **completed** (run
-   conclusion `success`, comment edited after it was posted) with no new
+   conclusion `success`, comment edited after it was posted, `written` `yes`)
+   with no new
    actionable findings, and the `headRefOid` recorded when you requested it is
    the current one. A clean automatic review whose `reviewed_sha` is the
    current HEAD counts the same (see Step 1).
