@@ -336,9 +336,10 @@ Check each of these:
   this run: a row with `via` set to `time`, status `completed`, conclusion
   `success`, a `reviewed_sha` equal to the current `headRefOid`, and a body
   that is the plugin's summary (`## Code review`) reporting no actionable
-  findings. The script pairs only comments that open with that heading. Record that `reviewed_sha` as the reviewed
-  commit, as Step 4 would. Any push after the PR opened leaves `reviewed_sha`
-  behind HEAD, and then Step 4 is still needed.
+  findings. The script pairs only comments that open with that heading.
+  Record that `reviewed_sha` as the reviewed commit, as Step 4 would. Any push
+  after the PR opened leaves `reviewed_sha` behind HEAD, and then Step 4 is
+  still needed.
 - **Red CI?** If any `statusCheckRollup` entry is failing, go to *Handling CI
   failures* now and come back here. Steps 2–3 only handle comments; a PR with
   red CI and no threads would otherwise cycle through re-reviews while nobody
@@ -430,10 +431,10 @@ comment's `[View job](…/actions/runs/<id>)` link and reports that run's status
   comment has no `[View job]` link, so the script paired it with the one run of
   `<AUTO>` on the PR's branch that was going when the comment was posted. Only
   a comment opening with the plugin's `## Code review` heading is paired, so a
-  linkless placeholder from another workflow keeps `-`. It
-  is never the review you requested, but Step 1 lets it count when its
-  `reviewed_sha` is the current HEAD. It posts once, with no placeholder, so
-  the edit check below does not apply to it.
+  linkless placeholder from another workflow keeps `-`. It is never the review
+  you requested, but Step 1 lets it count when its `reviewed_sha` is the
+  current HEAD. It posts once, with no placeholder, so the edit check below
+  does not apply to it.
 - A row with run id `-` has no `[View job]` link and no matching run. It is
   either a placeholder whose link has not been written yet, or a comment from
   another workflow (an automatic review the script could not pair, for

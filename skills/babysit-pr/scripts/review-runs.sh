@@ -68,7 +68,7 @@ rows=$(
           (first(.body | capture("\\[View job[^\\]]*\\]\\([^)]*/runs/(?<r>[0-9]+)") | .r) // "-"),
           .created_at,
           .updated_at,
-          (if .body | test("^#+[[:space:]]*Code review") then "summary" else "-" end) ]
+          (if .body | test("^##[[:space:]]+Code review[[:space:]]*(\n|$)") then "summary" else "-" end) ]
       | @tsv' <<<"$comments"
 )
 
