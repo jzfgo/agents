@@ -143,6 +143,40 @@
         "Offers a workflow PR against the default branch, not develop",
         "Asks before creating anything"
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "/babysit-pr 70",
+      "expected_output": "PR 70 was opened with one commit and nothing has been pushed since. The automatic pull_request review posted 'No issues found' with no [View job] link; review-runs.sh, given the workflow as its third argument, pairs it with run 9001 (via time, completed, success, reviewed_sha equal to the current headRefOid). There are no threads and no CI is expected. Counts that review toward exit condition 2, requests no re-review, and goes to Exit.",
+      "files": [],
+      "assertions": [
+        "Passes the automatic review's workflow file as review-runs.sh's third argument",
+        "Treats the via-time row as a clean review only after checking that reviewed_sha equals the current headRefOid",
+        "Does not post an @claude re-review request",
+        "Hands the merge to the user without merging"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/babysit-pr 71",
+      "expected_output": "Same as PR 70, except a second commit was pushed after the PR opened, so the automatic review's reviewed_sha is the first commit, not HEAD. Does not count that review and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Notices that reviewed_sha differs from the current headRefOid",
+        "Does not count the automatic review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "/babysit-pr 72",
+      "expected_output": "PR 72 is in a repo where the automatic review and the @claude reviewer are separate workflows. While the automatic run 9002 (completed, success, reviewed_sha equal to HEAD) was going, the other workflow posted a linkless placeholder, \"### Reviewing PR #72\", and nothing else. review-runs.sh pairs only comments that open with \"## Code review\", so the placeholder row keeps run id - and via -. Does not count it as a clean review and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Does not treat the placeholder as a via-time review",
+        "Does not count any review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
     }
   ]
 }
