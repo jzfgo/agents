@@ -94,6 +94,15 @@ only with the user's yes.
    Replace `.github/workflows/claude.yml` with the workflow's own path if it
    lives elsewhere.
 
+7. **No background tasks.** The run is headless: it never gets the
+   notification that a background task finished, and never wakes from a
+   `ScheduleWakeup`. An agent that starts its reviewers in the background, or
+   schedules a wakeup, ends its turn "waiting on them", and the run exits green
+   having posted nothing. A prompt asking for the foreground is only a
+   suggestion, so take the option away instead: set
+   `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"` in the action step's `env:`, and
+   add `--disallowedTools "ScheduleWakeup"` to `claude_args`.
+
 ## Minimal example
 
 ```yaml
@@ -154,6 +163,12 @@ jobs:
           include_comments_by_actor: "<your-login>,claude[bot]"
           additional_permissions: |
             actions: read
+          # A headless run never wakes from a wakeup it schedules.
+          claude_args: '--disallowedTools "ScheduleWakeup"'
+        # Background tasks never report back to a headless run: the agent
+        # would end its turn waiting on them and post nothing.
+        env:
+          CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
 ```
 
 The action posts with its own OIDC-minted token (hence `id-token: write`), so
@@ -195,21 +210,26 @@ reads it; never from a guess:
 - Leave everything else as it is, comments included. The checklist items it
   meets (the three `@claude` triggers, the `author_association` gates on
   commenter and PR author, the job-level `concurrency` and `timeout-minutes`,
-  the quoted `run-name`) are the reason the example exists, and the comments
-  stop a later review from flagging the Dependabot gap and the narrow
-  `include_comments_by_actor` as bugs. Do not trim them to make the file
-  shorter.
+  the quoted `run-name`, no background tasks) are the reason the example
+  exists, and the comments stop a later review from flagging the Dependabot
+  gap and the narrow `include_comments_by_actor` as bugs. Do not trim them to
+  make the file shorter.
 
-Two optional additions make reviews more trustworthy. Both go in `claude_args`,
-which is a single string:
+Two optional additions make reviews more trustworthy, and two tools must stay
+out. The additions go in the example's `claude_args`, which is a single
+string, beside `--disallowedTools "ScheduleWakeup"`; their order does not
+matter:
 
 - `--model <id>` picks the reviewer model.
-- `--allowedTools "WebSearch,Bash(gh api:*)"` lets the reviewer check
-  claims against sources and repo settings instead of recalling them.
-  `--allowedTools` is an auto-approval list: a tool left off it still exists,
-  but its call hits a permission prompt that nothing in CI can answer, so it
-  comes back denied. Note that `gh api` also accepts `-X POST` and `-X DELETE`;
-  only grant it behind the author gate of item 2.
+- `--allowedTools "WebSearch"` lets the reviewer check claims against
+  sources instead of recalling them. `--allowedTools` is an auto-approval
+  list: a tool left off it still exists, but its call hits a permission prompt
+  that nothing in CI can answer, so it comes back denied.
+- Do not add `Bash(gh api:*)`, even to let the reviewer read rulesets and run
+  status. A prefix rule cannot stop `-X POST` or `-X DELETE` at the end of
+  the command, so injected text in a PR could write through it with the
+  action's token. Without it, the reviewer flags claims about repo settings
+  as unverified.
 - Do not add `WebFetch`. The action writes its write-scoped app token into
   origin's URL in `.git/config`, Claude can read that file (read-only shell
   commands are auto-approved, and a glob such as `cat .g?t/c*` gets past
