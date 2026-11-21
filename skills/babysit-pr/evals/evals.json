@@ -177,6 +177,40 @@
         "Does not count any review toward exit condition 2",
         "Requests a re-review with an @claude comment"
       ]
+    },
+    {
+      "id": 16,
+      "prompt": "/babysit-pr 73",
+      "expected_output": "PR 73 was opened with one commit and nothing has been pushed since. The automatic pull_request review ran in tag mode: its comment carries a [View job] link to run 9003, a pull_request run, so review-runs.sh reports it as via auto with reviewed_sha equal to the current headRefOid. The run is completed with conclusion success, the comment was edited after it was posted, and its body raises no actionable findings. There are no threads and no CI is expected. Counts that review toward exit condition 2, requests no re-review, and goes to Exit.",
+      "files": [],
+      "assertions": [
+        "Treats the via-auto row as a clean review only after checking that reviewed_sha equals the current headRefOid",
+        "Checks that the via-auto comment's updated_at is later than its created_at",
+        "Does not post an @claude re-review request",
+        "Hands the merge to the user without merging"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "/babysit-pr 74",
+      "expected_output": "Same as PR 73, except the automatic review's comment was never edited (updated_at equals created_at): the run was killed before the action rewrote its placeholder. Does not count it and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Notices that the via-auto comment was never edited",
+        "Does not count the automatic review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "/babysit-pr 75",
+      "expected_output": "Same as PR 73, except a second commit was pushed after the PR opened, so the via-auto row's reviewed_sha is the first commit, not HEAD. Does not count that review and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Notices that reviewed_sha differs from the current headRefOid",
+        "Does not count the automatic review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
     }
   ]
 }

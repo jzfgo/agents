@@ -186,7 +186,7 @@ jobs:
           # Every other trigger passes an empty prompt, so the action follows the
           # comment that mentioned @claude, in tag mode as before.
           track_progress: ${{ github.event_name == 'pull_request' }}
-          prompt: ${{ github.event_name == 'pull_request' && format('Review this pull request in full (HEAD {0}). Read the whole diff against the base branch and the code around it, and check it against the PR title and description and against every AGENTS.md or CLAUDE.md that covers the changed files. Report bugs, unhandled edge cases, risks, gaps in test coverage and mismatches with the description, and say which ones should block the merge. Post your findings in your comment even if there are none.', github.event.pull_request.head.sha) || '' }}
+          prompt: ${{ github.event_name == 'pull_request' && format('There is no @claude comment on this event, so these instructions are your request. Review this pull request in full (HEAD {0}). Read the whole diff against the base branch and the code around it, and check it against the PR title and description and against every AGENTS.md or CLAUDE.md that covers the changed files. Report bugs, unhandled edge cases, risks, gaps in test coverage and mismatches with the description, and say which ones should block the merge. Post your findings in your comment even if there are none.', github.event.pull_request.head.sha) || '' }}
 
           # `--model`: without it the action runs on Sonnet, and v1 has no
           # `model` input, so `claude_args` is the only vehicle.

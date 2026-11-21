@@ -13,8 +13,8 @@
 # via says where run_id came from: "link" (the comment's [View job] link),
 # "auto" (that link, to an automatic pull_request run in tag mode), "time"
 # (matched to an automatic pull_request run without a link, see below) or "-"
-# (no run found). status/conclusion are "-" when there is no run to look up, and status
-# is "unreadable" when gh cannot read the run.
+# (no run found). status/conclusion are "-" when there is no run to look up,
+# and status is "unreadable" when gh cannot read the run.
 #
 # A "link" or "auto" review counts as finished only with status "completed",
 # conclusion "success" AND updated_at later than created_at (the placeholder
@@ -32,8 +32,10 @@
 # links the CI run it reports on, and that one finishes minutes earlier.
 #
 # An automatic review on `pull_request` that runs the code-review plugin
-# (posting with `gh pr comment`) leaves no [View job] link. Given the workflow file that runs
-# it as the third argument, a comment without a link is matched to that
+# (posting with `gh pr comment`) leaves no [View job] link. This repo's own
+# workflow has run in tag mode since, so "time" rows now come only from PRs
+# reviewed before that switch, or from repos still running the plugin. Given
+# the workflow file that runs it as the third argument, a comment without a link is matched to that
 # workflow's pull_request run on the PR's head branch that was running when the
 # comment was posted. Only a comment that opens with the plugin's summary
 # heading ("## Code review") is matched: any other linkless comment (a
