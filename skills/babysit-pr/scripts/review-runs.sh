@@ -35,12 +35,12 @@
 # (posting with `gh pr comment`) leaves no [View job] link. This repo's own
 # workflow has run in tag mode since, so "time" rows now come only from PRs
 # reviewed before that switch, or from repos still running the plugin. Given
-# the workflow file that runs it as the third argument, a comment without a link is matched to that
-# workflow's pull_request run on the PR's head branch that was running when the
-# comment was posted. Only a comment that opens with the plugin's summary
-# heading ("## Code review") is matched: any other linkless comment (a
-# placeholder from another workflow, say) is no review and keeps "-". Exactly
-# one such run must match, or the row keeps "-".
+# the workflow file that runs it as the third argument, a comment without a
+# link is matched to that workflow's pull_request run on the PR's head branch
+# that was running when the comment was posted. Only a comment that opens
+# with the plugin's summary heading ("## Code review") is matched: any other
+# linkless comment (a placeholder from another workflow, say) is no review and
+# keeps "-". Exactly one such run must match, or the row keeps "-".
 #
 # Needs gh (authenticated) and jq. Uses the current repo, or GH_REPO if set.
 

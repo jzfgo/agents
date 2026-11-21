@@ -193,7 +193,7 @@
     {
       "id": 17,
       "prompt": "/babysit-pr 74",
-      "expected_output": "Same as PR 73, except the automatic review's comment was never edited (updated_at equals created_at): the run was killed before the action rewrote its placeholder. Does not count it and requests a re-review in Step 4.",
+      "expected_output": "Same as PR 73, except the automatic review's comment was never edited (updated_at equals created_at): the run exited green without rewriting its placeholder, so only the edit check tells it apart from a finished review. Does not count it and requests a re-review in Step 4.",
       "files": [],
       "assertions": [
         "Notices that the via-auto comment was never edited",

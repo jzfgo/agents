@@ -435,15 +435,15 @@ comment's `[View job](…/actions/runs/<id>)` link and reports that run's status
   requested, but Step 1 lets it count when its `reviewed_sha` is the current
   HEAD; the edit check below applies to it as to any linked row.
 - A row with `via` set to `time` is the automatic `pull_request` review run by
-  the code-review plugin, which only PRs reviewed before the workflow switched
-  to tag mode still carry: its comment has no `[View job]` link, so the script
-  paired it with the one run of `<AUTO>` on the PR's branch that was going
-  when the comment was posted. Only
-  a comment opening with the plugin's `## Code review` heading is paired, so a
-  linkless placeholder from another workflow keeps `-`. It is never the review
-  you requested, but Step 1 lets it count when its `reviewed_sha` is the
-  current HEAD. It posts once, with no placeholder, so the edit check below
-  does not apply to it.
+  the code-review plugin, found only on PRs reviewed before a workflow switched
+  to tag mode or in repos still running the plugin: its comment has no
+  `[View job]` link, so the script paired it with the one run of `<AUTO>` on
+  the PR's branch that was going when the comment was posted. Only a comment
+  opening with the plugin's `## Code review` heading is paired, so a linkless
+  placeholder from another workflow keeps `-`. It is never the review you
+  requested, but Step 1 lets it count when its `reviewed_sha` is the current
+  HEAD. It posts once, with no placeholder, so the edit check below does not
+  apply to it.
 - A row with run id `-` has no `[View job]` link and no matching run. It is
   either a placeholder whose link has not been written yet, or a comment from
   another workflow (an automatic review the script could not pair, for
