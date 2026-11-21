@@ -80,7 +80,8 @@ only with the user's yes.
    run can push a fix. An automatic review only needs to read and comment, so
    deny those on `pull_request` alone. A deny rule wins over the action's own
    allow list; leave the rest of Bash alone, since the read-only `git diff`
-   and `git log` are how the agent sees the diff:
+   and `git log` are how the agent sees the diff. This one flag replaces the
+   `--disallowedTools "ScheduleWakeup"` of step 7; pass it once:
 
    ```yaml
    claude_args: '--disallowedTools "${{ github.event_name == ''pull_request'' && ''ScheduleWakeup,Bash(git add:*),Bash(git commit:*),Bash(git rm:*),Edit,MultiEdit,Write,NotebookEdit'' || ''ScheduleWakeup'' }}"'

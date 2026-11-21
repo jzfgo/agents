@@ -328,9 +328,9 @@ Check each of these:
   has *finished* during this run (its run is `completed` with conclusion
   `success`, its comment was edited after posting and `written` reads `yes`,
   per Step 5), it raised no new actionable findings, and no commit has landed
-  on `<HEAD>` since it finished. A PR with no review yet has **not** met this, so go to Step 4 rather
-  than treating it as clean. Neither has a PR whose last push came after the
-  review, even a push that only fixed CI.
+  on `<HEAD>` since it finished. A PR with no review yet has **not** met this,
+  so go to Step 4 rather than treating it as clean. Neither has a PR whose
+  last push came after the review, even a push that only fixed CI.
 
   The automatic first review also meets this, though nobody requested it in
   this run: a row with `via` set to `auto` or `time`, status `completed`,
@@ -622,8 +622,8 @@ Stop when **all three** hold:
 2. At least one re-review requested in this run has **completed** (run
    conclusion `success`, comment edited after it was posted, `written` `yes`)
    with no new actionable findings, and the `headRefOid` recorded when you
-   requested it is the current one. A clean automatic review whose `reviewed_sha` is the
-   current HEAD counts the same (see Step 1).
+   requested it is the current one. A clean automatic review whose
+   `reviewed_sha` is the current HEAD counts the same (see Step 1).
 3. Every `statusCheckRollup` entry has finished and passes, except one excused
    above. An empty
    rollup counts only once *Checking for missing CI* has found no checks are

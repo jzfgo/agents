@@ -35,9 +35,15 @@
 # A "link" or "auto" review counts only with written "yes" as well.
 # The test can be wrong both ways. A finished review that quotes the spinner's
 # asset id or the placeholder line reads "no", which costs only a needless
-# re-request. An agent that wrote its checklist without the spinner, as the
-# action's prompt asks it to use, and then stopped reads "yes"; that takes two
+# re-request. An agent that ignored the prompt's request to use the spinner,
+# wrote its checklist without it and then stopped, reads "yes"; that takes two
 # slips at once, and the body is still read for findings before it counts.
+#
+# Both strings are copied from the action's src/github/operations/comments/
+# common.ts (SPINNER_HTML and the placeholder body) at v1.0.271. If a later
+# version changes either one, the test fails open: every row reads "yes" and
+# nothing errors. Whenever a repo using this script bumps claude-code-action,
+# compare both strings in that file at the new version with the ones below.
 #
 # Why this exists: the action posts a placeholder comment within seconds and
 # edits it in place when the review finishes, so neither the comment's presence,
