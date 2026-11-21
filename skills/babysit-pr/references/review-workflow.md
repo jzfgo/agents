@@ -212,12 +212,13 @@ reads it; never from a guess:
   commenter and PR author, the job-level `concurrency` and `timeout-minutes`,
   the quoted `run-name`, no background tasks) are the reason the example
   exists, and the comments stop a later review from flagging the Dependabot
-  gap and the narrow `include_comments_by_actor` as bugs. Do not trim them to make the file
-  shorter.
+  gap and the narrow `include_comments_by_actor` as bugs. Do not trim them to
+  make the file shorter.
 
 Two optional additions make reviews more trustworthy, and two tools must stay
 out. The additions go in the example's `claude_args`, which is a single
-string, after `--disallowedTools "ScheduleWakeup"`:
+string, beside `--disallowedTools "ScheduleWakeup"`; their order does not
+matter:
 
 - `--model <id>` picks the reviewer model.
 - `--allowedTools "WebSearch"` lets the reviewer check claims against
