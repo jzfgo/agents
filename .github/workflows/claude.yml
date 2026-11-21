@@ -218,8 +218,9 @@ jobs:
         # from Agent and Bash, and the action passes the step's environment to
         # Claude. A prompt asking for the foreground would be a suggestion
         # only; this leaves the plugin no background option it is allowed to
-        # use (Monitor and MCP tasks still background, but neither is in
-        # `--allowedTools`, so CI denies them). `ScheduleWakeup` is disallowed
+        # use (Monitor and MCP tasks still background, but Monitor is not in
+        # `--allowedTools`, so CI denies it, and none of the action's MCP
+        # servers run tools as tasks). `ScheduleWakeup` is disallowed
         # for the same reason: a headless session never wakes up, so a
         # scheduled wakeup only ends the turn early.
         env:
