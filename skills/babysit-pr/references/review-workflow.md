@@ -215,17 +215,20 @@ reads it; never from a guess:
   gap and the narrow `include_comments_by_actor` as bugs. Do not trim them to make the file
   shorter.
 
-Two optional additions make reviews more trustworthy. Both go in the
-example's `claude_args`, which is a single string, after
-`--disallowedTools "ScheduleWakeup"`:
+Two optional additions make reviews more trustworthy, and two tools must stay
+out. The additions go in the example's `claude_args`, which is a single
+string, after `--disallowedTools "ScheduleWakeup"`:
 
 - `--model <id>` picks the reviewer model.
-- `--allowedTools "WebSearch,Bash(gh api:*)"` lets the reviewer check
-  claims against sources and repo settings instead of recalling them.
-  `--allowedTools` is an auto-approval list: a tool left off it still exists,
-  but its call hits a permission prompt that nothing in CI can answer, so it
-  comes back denied. Note that `gh api` also accepts `-X POST` and `-X DELETE`;
-  only grant it behind the author gate of item 2.
+- `--allowedTools "WebSearch"` lets the reviewer check claims against
+  sources instead of recalling them. `--allowedTools` is an auto-approval
+  list: a tool left off it still exists, but its call hits a permission prompt
+  that nothing in CI can answer, so it comes back denied.
+- Do not add `Bash(gh api:*)`, even to let the reviewer read rulesets and run
+  status. A prefix rule cannot stop `-X POST` or `-X DELETE` at the end of
+  the command, so injected text in a PR could write through it with the
+  action's token. Without it, the reviewer flags claims about repo settings
+  as unverified.
 - Do not add `WebFetch`. The action writes its write-scoped app token into
   origin's URL in `.git/config`, Claude can read that file (read-only shell
   commands are auto-approved, and a glob such as `cat .g?t/c*` gets past
