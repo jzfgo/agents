@@ -326,17 +326,20 @@ Check each of these:
 - **Open threads?** Comment threads with no reply from you and not resolved.
 - **A completed, clean re-review of the current HEAD?** At least one bot review
   has *finished* during this run (its run is `completed` with conclusion
-  `success` and its comment was edited after posting, per Step 5), it raised
-  no new actionable findings, and no commit has landed on `<HEAD>` since it
-  finished. A PR with no review yet has **not** met this, so go to Step 4 rather
-  than treating it as clean. Neither has a PR whose last push came after the
-  review, even a push that only fixed CI.
+  `success`, its comment was edited after posting and `written` reads `yes`,
+  per Step 5), it raised no new actionable findings, and no commit has landed
+  on `<HEAD>` since it finished. A PR with no review yet has **not** met this,
+  so go to Step 4 rather than treating it as clean. Neither has a PR whose
+  last push came after the review, even a push that only fixed CI.
 
   The automatic first review also meets this, though nobody requested it in
-  this run: a row with `via` set to `time`, status `completed`, conclusion
-  `success`, a `reviewed_sha` equal to the current `headRefOid`, and a body
-  that is the plugin's summary (`## Code review`) reporting no actionable
-  findings. The script pairs only comments that open with that heading.
+  this run: a row with `via` set to `auto` or `time`, status `completed`,
+  conclusion `success`, a `reviewed_sha` equal to the current `headRefOid`, and
+  no actionable findings. An `auto` row is a tag-mode review with a
+  `[View job]` link, so its comment must also have been edited after posting
+  and its `written` column must read `yes`;
+  a `time` row is the code-review plugin's summary (`## Code review`), the only
+  linkless comment the script pairs.
   Record that `reviewed_sha` as the reviewed commit, as Step 4 would. Any push
   after the PR opened leaves `reviewed_sha` behind HEAD, and then Step 4 is
   still needed.
@@ -427,14 +430,21 @@ progress` and `### Reviewing PR #<n>`, and those do not form a closed set.
 comment's `[View job](…/actions/runs/<id>)` link and reports that run's status:
 
 - Ignore rows whose comment ids you already consumed in an earlier iteration.
-- A row with `via` set to `time` is the automatic `pull_request` review: its
-  comment has no `[View job]` link, so the script paired it with the one run of
-  `<AUTO>` on the PR's branch that was going when the comment was posted. Only
-  a comment opening with the plugin's `## Code review` heading is paired, so a
-  linkless placeholder from another workflow keeps `-`. It is never the review
-  you requested, but Step 1 lets it count when its `reviewed_sha` is the
-  current HEAD. It posts once, with no placeholder, so the edit check below
-  does not apply to it.
+- A row with `via` set to `auto` is the automatic `pull_request` review run in
+  tag mode: its `[View job]` link points at a `pull_request` run, whose head
+  commit the script reports as `reviewed_sha`. It is never the review you
+  requested, but Step 1 lets it count when its `reviewed_sha` is the current
+  HEAD; the edit check below applies to it as to any linked row.
+- A row with `via` set to `time` is the automatic `pull_request` review run by
+  the code-review plugin, found only on PRs reviewed before a workflow switched
+  to tag mode or in repos still running the plugin: its comment has no
+  `[View job]` link, so the script paired it with the one run of `<AUTO>` on
+  the PR's branch that was going when the comment was posted. Only a comment
+  opening with the plugin's `## Code review` heading is paired, so a linkless
+  placeholder from another workflow keeps `-`. It is never the review you
+  requested, but Step 1 lets it count when its `reviewed_sha` is the current
+  HEAD. It posts once, with no placeholder, so the edit check below does not
+  apply to it.
 - A row with run id `-` has no `[View job]` link and no matching run. It is
   either a placeholder whose link has not been written yet, or a comment from
   another workflow (an automatic review the script could not pair, for
@@ -449,8 +459,17 @@ comment's `[View job](…/actions/runs/<id>)` link and reports that run's status
   (`gh run view <run-id> --log-failed`), then request again in Step 4.
 - The comment must also have been **edited after it was posted**
   (`updated_at` later than `created_at`). An unedited comment is still the
-  placeholder, whatever the run says. This guards against a run killed
+  placeholder, whatever the run says. This guards against a run that ended
   before the action could rewrite its comment.
+- On a linked row, `written` must read `yes`. An edit alone is not enough:
+  the agent's first edit is its progress checklist, with the action's
+  spinner, and it fills in the findings only at the end. If it ends its turn
+  before that (a subagent left in the background, a turn limit), the run
+  still concludes `success`, and the action rewrites the comment with its
+  `Claude finished` header over whatever the agent last wrote. That reads like
+  a clean pass. The script reports `written` `no` while the body holds the
+  spinner or the action's untouched placeholder line. Such a row is no review:
+  request again in Step 4, asking for the findings to be written out in full.
 - A `skipped` conclusion on a *different* run is normal: each trigger can
   produce two runs, one that executes and one skipped as a duplicate event.
   Gate on the run named in the comment's link.
@@ -601,10 +620,10 @@ Stop when **all three** hold:
 
 1. No open, unresolved threads.
 2. At least one re-review requested in this run has **completed** (run
-   conclusion `success`, comment edited after it was posted) with no new
-   actionable findings, and the `headRefOid` recorded when you requested it is
-   the current one. A clean automatic review whose `reviewed_sha` is the
-   current HEAD counts the same (see Step 1).
+   conclusion `success`, comment edited after it was posted, `written` `yes`)
+   with no new actionable findings, and the `headRefOid` recorded when you
+   requested it is the current one. A clean automatic review whose
+   `reviewed_sha` is the current HEAD counts the same (see Step 1).
 3. Every `statusCheckRollup` entry has finished and passes, except one excused
    above. An empty
    rollup counts only once *Checking for missing CI* has found no checks are

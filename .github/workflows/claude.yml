@@ -106,10 +106,10 @@ jobs:
       # other code, and this job holds the repo's Claude token. To bump one,
       # resolve the new tag to its commit and update the trailing comment.
       #
-      # `persist-credentials: false`: the action replaces the checkout's token
-      # with its own before Claude starts, but in agent mode it carries on if
-      # that fails, so the token is never written in the first place. The guard
-      # below fetches anonymously, which a public repo allows.
+      # `persist-credentials: false`: the action writes its own token into the
+      # checkout before Claude starts, so the job's token has no reason to be
+      # there at all. The guard below fetches anonymously, which a public repo
+      # allows.
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -153,6 +153,12 @@ jobs:
       - name: Keep the plugin checkout out of git
         run: echo /.review-plugins >> .git/info/exclude
 
+      # When bumping this pin, open src/github/operations/comments/common.ts at
+      # the new version and check that the spinner image id (SPINNER_HTML) and
+      # the placeholder line ("I'll analyze this and get back to you.") still
+      # match the two strings in skills/babysit-pr/scripts/review-runs.sh. If
+      # either changed, that script's `written` check stops flagging
+      # unfinished reviews without any error.
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
@@ -168,18 +174,25 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # `pull_request` runs have no comment to follow, so they run the
-          # code-review plugin, which comments on each line it has an issue with
-          # and posts "No issues found" otherwise. Every other trigger passes an
-          # empty prompt, so the action follows the comment that mentioned
-          # @claude; `@claude /code-review:code-review` also works there.
+          # The automatic review on `pull_request` runs exactly like an `@claude`
+          # re-review: tag mode, the same default prompt (PR title and body,
+          # comments, changed files, CLAUDE.md) and one tracking comment edited
+          # in place. `track_progress` is what forces tag mode on this event;
+          # without it a `prompt` means agent mode. The prompt below stands in
+          # for the comment a person would have written, and the action appends
+          # it as custom instructions.
           #
-          # No `track_progress`, on purpose: tag mode would wrap the slash
-          # command as plain text so it never runs, and its tracking comment
-          # would sit beside the plugin's own, so every review would post twice.
-          # The plugin posts on its own: `gh pr comment` for the summary, and the
-          # inline-comment tool allowed in `claude_args`.
-          prompt: ${{ github.event_name == 'pull_request' && format('/code-review:code-review --comment {0}/pull/{1}', github.repository, github.event.pull_request.number) || '' }}
+          # It used to run the code-review plugin instead. That plugin keeps
+          # only high-confidence bugs and quotable CLAUDE.md breaches and drops
+          # edge cases, risks and test gaps by design, so on carroquesi #530-532
+          # it posted "No issues found" where an `@claude` re-review of the same
+          # commit returned a full report. It is still loaded, so
+          # `@claude /code-review:code-review` runs it on request.
+          #
+          # Every other trigger passes an empty prompt, so the action follows the
+          # comment that mentioned @claude, in tag mode as before.
+          track_progress: ${{ github.event_name == 'pull_request' }}
+          prompt: ${{ github.event_name == 'pull_request' && format('Review this pull request in full (HEAD {0}). Read the whole diff against the base branch and the code around it, and check it against the PR title and description and against every AGENTS.md or CLAUDE.md that covers the changed files. Report bugs, unhandled edge cases, risks, gaps in test coverage and mismatches with the description, and say which ones should block the merge. Post your findings in your comment even if there are none.', github.event.pull_request.head.sha) || '' }}
 
           # `--model`: without it the action runs on Sonnet, and v1 has no
           # `model` input, so `claude_args` is the only vehicle.
@@ -187,7 +200,7 @@ jobs:
           # `--allowedTools` is an AUTO-APPROVAL list: a tool left off it still
           # exists, but its call hits a permission prompt nothing in CI can
           # answer, so it comes back denied. This adds to the defaults.
-          # - The inline-comment tool is how the plugin comments on a line;
+          # - The inline-comment tool is how a review comments on a line;
           #   allowing it is also what makes the action start its server.
           # - WebSearch lets the reviewer check claims against sources.
           # - No WebFetch. The action writes its write-scoped app token into
@@ -201,27 +214,49 @@ jobs:
           #   run status, but a prefix rule cannot stop `-X POST`/`-X DELETE`
           #   at the end, so injected text in a PR could write through it.
           #   Claims about repo settings get flagged as unverified instead.
-          # - No git Bash rules at all, not even "read-only" subcommands. A prefix
-          #   rule cannot vet arguments: `git -c <key>=<cmd>`, `git config` and
-          #   `git grep -O<cmd>` run commands, `--output=<file>` on log/diff/show
-          #   writes any file, and a bare repo committed in a PR can carry its
-          #   own config (fsmonitor, pager) that any git call inside it obeys.
-          #   The job's `contents: read` does not contain that: the action acts
-          #   with its own app token. The reviewer reads code with Read and Grep.
-          # - `ScheduleWakeup` is disallowed: see the step's `env` below.
-          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch" --disallowedTools "ScheduleWakeup"'
-        # The plugin's review agents must run in the foreground. Launched in
-        # the background, the main agent ends its turn "waiting on them", the
-        # headless session exits there, and they die before posting
-        # (jzfgo/carroquesi run 44847076788). That is why most automatic
-        # reviews here posted nothing. The variable removes `run_in_background`
-        # from Agent and Bash, and the action passes the step's environment to
-        # Claude. A prompt asking for the foreground would be a suggestion
-        # only; this leaves the plugin no background option it is allowed to
-        # use (Monitor and MCP tasks still background, but Monitor is not in
+          # - No git Bash rules of this file's own, not even "read-only"
+          #   subcommands. A prefix rule cannot vet arguments: `git -c
+          #   <key>=<cmd>`, `git config` and `git grep -O<cmd>` run commands,
+          #   `--output=<file>` on log/diff/show writes any file, and a bare
+          #   repo committed in a PR can carry its own config (fsmonitor,
+          #   pager) that any git call inside it obeys. The job's
+          #   `contents: read` does not contain that: the action acts with its
+          #   own app token. Tag mode still adds the action's own git rules and
+          #   push wrapper on every trigger, so an `@claude` run can push to the
+          #   PR branch, and tag mode also gives every run the CI tools that
+          #   read results through `actions: read`.
+          #
+          # `--disallowedTools`:
+          # - `ScheduleWakeup` on every run: see the step's `env` below.
+          # - On `pull_request` runs, the automatic review only reads and
+          #   comments, so the git write commands that tag mode allows (`add`,
+          #   `commit`, `rm`) are denied, and so are the edit tools that its
+          #   `acceptEdits` would allow. On an open PR, with no commit, the push
+          #   wrapper has nothing to push. (If the PR closes before the action
+          #   sets up its branch, the action makes a new `claude/` branch from
+          #   the base. The wrapper could push that branch, and the action's own
+          #   cleanup could commit leftover changes to it. Neither reaches the
+          #   PR branch or the base.) Not all of `Bash` is denied: that would
+          #   also block the read-only `git diff` and `git log`, and tag mode
+          #   has no other way to see the diff. A deny rule wins over the
+          #   action's own allow list. An `@claude` run keeps the write commands
+          #   and the edit tools, so it can still push a fix when asked. This
+          #   list is complete only while `use_commit_signing` is off: with it
+          #   on, the action commits through its `mcp__github_file_ops__*`
+          #   tools, which would need denying too.
+          claude_args: '--model claude-opus-5-5 --plugin-dir ${{ github.workspace }}/.review-plugins/plugins/code-review --allowedTools "mcp__github_inline_comment__create_inline_comment,WebSearch" --disallowedTools "${{ github.event_name == ''pull_request'' && ''ScheduleWakeup,Bash(git add:*),Bash(git commit:*),Bash(git rm:*),Edit,MultiEdit,Write,NotebookEdit'' || ''ScheduleWakeup'' }}"'
+        # Subagents must run in the foreground. Launched in the background, the
+        # main agent ends its turn "waiting on them", the headless session
+        # exits there, and they die before posting (jzfgo/carroquesi run
+        # 44847076788). That is why most automatic reviews here posted
+        # nothing. The variable removes `run_in_background` from Agent and
+        # Bash, and the action passes the step's environment to Claude. A
+        # prompt asking for the foreground would be a suggestion only; this
+        # leaves the agent no background option it is allowed to use (Monitor
+        # and MCP tasks still background, but Monitor is not in
         # `--allowedTools`, so CI denies it, and none of the action's MCP
-        # servers run tools as tasks). `ScheduleWakeup` is disallowed
-        # for the same reason: a headless session never wakes up, so a
-        # scheduled wakeup only ends the turn early.
+        # servers run tools as tasks). `ScheduleWakeup` is disallowed for the
+        # same reason: a headless session never wakes up, so a scheduled
+        # wakeup only ends the turn early.
         env:
           CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
