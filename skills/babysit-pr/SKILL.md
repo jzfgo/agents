@@ -98,6 +98,12 @@ reason to stop.
 The bot's REST login is normally `claude[bot]`. Confirm it from a past comment if
 there is one; `scripts/review-runs.sh` takes it as its second argument.
 
+If a workflow using the action also runs on `pull_request` (an automatic first
+review), call its bare file name `<AUTO>`; it is often `<WORKFLOW>` itself. The
+script takes it as its third argument and uses it to pair that review's comment,
+which has no `[View job]` link, with its run (see Step 5). Leave it out when no
+such workflow exists.
+
 Finally, note whether the PR edits `<WORKFLOW>` itself:
 
 ```bash
@@ -300,7 +306,7 @@ time Step 1 begins**, including re-entries from *Handling CI failures*.
 ```bash
 gh pr view <number> --json reviewDecision,mergeStateStatus,statusCheckRollup,reviews,comments,headRefOid
 gh api "repos/{owner}/{repo}/pulls/<number>/comments" --paginate   # inline (per-line) comments
-scripts/review-runs.sh <number>                                     # bot review comments + their runs
+scripts/review-runs.sh <number> <bot-login> <AUTO>                  # bot review comments + their runs
 ```
 
 Check each of these:
@@ -325,6 +331,13 @@ Check each of these:
   finished. A PR with no review yet has **not** met this, so go to Step 4 rather
   than treating it as clean. Neither has a PR whose last push came after the
   review, even a push that only fixed CI.
+
+  The automatic first review also meets this, though nobody requested it in
+  this run: a row with `via` set to `time`, status `completed`, conclusion
+  `success`, a `reviewed_sha` equal to the current `headRefOid`, and a body
+  with no actionable findings. Record that `reviewed_sha` as the reviewed
+  commit, as Step 4 would. Any push after the PR opened leaves `reviewed_sha`
+  behind HEAD, and then Step 4 is still needed.
 - **Red CI?** If any `statusCheckRollup` entry is failing, go to *Handling CI
   failures* now and come back here. Steps 2–3 only handle comments; a PR with
   red CI and no threads would otherwise cycle through re-reviews while nobody
@@ -339,8 +352,9 @@ If threads are addressed, a clean re-review of HEAD has completed, and CI is
 green, go to *Exit*. `reviewDecision` will usually still read `REVIEW_REQUIRED`;
 that is expected (see *Exit*).
 
-On the first iteration of a fresh PR, expect to fall through to Step 4. There is
-nothing to triage yet, and exiting here would mean never reviewing at all.
+On the first iteration of a fresh PR, expect to fall through to Step 4, unless
+a clean automatic review of HEAD already counts. Otherwise there is nothing to
+triage yet, and exiting here would mean never reviewing at all.
 
 ### 2. Triage each open comment
 
@@ -398,7 +412,8 @@ leaves you unable to tell which commit it read, so the review cannot count.
 
 ### 5. Wait for the re-review to finish
 
-Poll every 60–90 seconds with `scripts/review-runs.sh <number>`.
+Poll every 60–90 seconds with
+`scripts/review-runs.sh <number> <bot-login> <AUTO>`.
 
 **The comment is not the review.** The action posts a placeholder within
 seconds and **edits that same comment in place** when it finishes. A new bot
@@ -410,11 +425,17 @@ progress` and `### Reviewing PR #<n>`, and those do not form a closed set.
 comment's `[View job](…/actions/runs/<id>)` link and reports that run's status:
 
 - Ignore rows whose comment ids you already consumed in an earlier iteration.
-- A row with run id `-` has no `[View job]` link. It is either a placeholder
-  whose link has not been written yet, or a comment from another workflow (an
-  automatic review posted by a different action, for instance). Neither is the
-  review you requested, and neither ever counts toward exit condition 2. Its
-  findings still get triaged in Step 2 like any other comment.
+- A row with `via` set to `time` is the automatic `pull_request` review: its
+  comment has no `[View job]` link, so the script paired it with the one run of
+  `<AUTO>` on the PR's branch that was going when the comment was posted. It
+  is never the review you requested, but Step 1 lets it count when its
+  `reviewed_sha` is the current HEAD. It posts once, with no placeholder, so
+  the edit check below does not apply to it.
+- A row with run id `-` has no `[View job]` link and no matching run. It is
+  either a placeholder whose link has not been written yet, or a comment from
+  another workflow (an automatic review the script could not pair, for
+  instance). It never counts toward exit condition 2. Its findings still get
+  triaged in Step 2 like any other comment.
 - The new row's run must be `completed` **with conclusion `success`**. A
   failed run still edits its comment: the action rewrites it with
   `**Claude encountered an error` as the header and the same `[View job]`
@@ -578,7 +599,8 @@ Stop when **all three** hold:
 2. At least one re-review requested in this run has **completed** (run
    conclusion `success`, comment edited after it was posted) with no new
    actionable findings, and the `headRefOid` recorded when you requested it is
-   the current one.
+   the current one. A clean automatic review whose `reviewed_sha` is the
+   current HEAD counts the same (see Step 1).
 3. Every `statusCheckRollup` entry has finished and passes, except one excused
    above. An empty
    rollup counts only once *Checking for missing CI* has found no checks are
@@ -592,7 +614,7 @@ assessment and exit having reviewed nothing.
 Before exiting, confirm HEAD has not moved since the review you rely on:
 
 ```bash
-gh pr view <number> --json headRefOid --jq .headRefOid   # must equal the one recorded in Step 4
+gh pr view <number> --json headRefOid --jq .headRefOid   # must equal the reviewed commit recorded
 ```
 
 If it moved, the review is stale: go back to **Step 4**.

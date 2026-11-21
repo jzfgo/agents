@@ -143,6 +143,29 @@
         "Offers a workflow PR against the default branch, not develop",
         "Asks before creating anything"
       ]
+    },
+    {
+      "id": 13,
+      "prompt": "/babysit-pr 70",
+      "expected_output": "PR 70 was opened with one commit and nothing has been pushed since. The automatic pull_request review posted 'No issues found' with no [View job] link; review-runs.sh, given the workflow as its third argument, pairs it with run 9001 (via time, completed, success, reviewed_sha equal to the current headRefOid). There are no threads and no CI is expected. Counts that review toward exit condition 2, requests no re-review, and goes to Exit.",
+      "files": [],
+      "assertions": [
+        "Passes the automatic review's workflow file as review-runs.sh's third argument",
+        "Treats the via-time row as a clean review only after checking that reviewed_sha equals the current headRefOid",
+        "Does not post an @claude re-review request",
+        "Hands the merge to the user without merging"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/babysit-pr 71",
+      "expected_output": "Same as PR 70, except a second commit was pushed after the PR opened, so the automatic review's reviewed_sha is the first commit, not HEAD. Does not count that review and requests a re-review in Step 4.",
+      "files": [],
+      "assertions": [
+        "Notices that reviewed_sha differs from the current headRefOid",
+        "Does not count the automatic review toward exit condition 2",
+        "Requests a re-review with an @claude comment"
+      ]
     }
   ]
 }
