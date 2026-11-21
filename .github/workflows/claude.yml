@@ -156,9 +156,11 @@ jobs:
       # When bumping this pin, open src/github/operations/comments/common.ts at
       # the new version and check that the spinner image id (SPINNER_HTML) and
       # the placeholder line ("I'll analyze this and get back to you.") still
-      # match the two strings in skills/babysit-pr/scripts/review-runs.sh. If
-      # either changed, that script's `written` check stops flagging
-      # unfinished reviews without any error.
+      # match the two strings in skills/babysit-pr/scripts/review-runs.sh.
+      # Check the spinner in src/create-prompt/index.ts too: the agent copies
+      # it from that prompt, not from common.ts. If any of them changed, that
+      # script's `written` check stops flagging unfinished reviews without
+      # any error.
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1.0.271
