@@ -11,17 +11,19 @@
 #   comment_id  run_id  via  status  conclusion  created_at  updated_at  reviewed_sha
 #
 # via says where run_id came from: "link" (the comment's [View job] link),
-# "time" (matched to an automatic pull_request run, see below) or "-" (no run
-# found). status/conclusion are "-" when there is no run to look up, and status
+# "auto" (that link, to an automatic pull_request run in tag mode), "time"
+# (matched to an automatic pull_request run without a link, see below) or "-"
+# (no run found). status/conclusion are "-" when there is no run to look up, and status
 # is "unreadable" when gh cannot read the run.
 #
-# A "link" review counts as finished only with status "completed", conclusion
-# "success" AND updated_at later than created_at (the placeholder was edited).
+# A "link" or "auto" review counts as finished only with status "completed",
+# conclusion "success" AND updated_at later than created_at (the placeholder
+# was edited).
 # A "time" review counts as finished with status "completed" and conclusion
 # "success"; it posts once, with no placeholder, so it is never edited.
-# reviewed_sha is the PR head commit a "time" run was started for, and "-" for
-# "link" rows: an issue_comment run reports the default branch's commit, not
-# the one it reviewed.
+# reviewed_sha is the PR head commit an "auto" or "time" run was started for,
+# and "-" for "link" rows: an issue_comment run reports the default branch's
+# commit, not the one it reviewed.
 #
 # Why this exists: the action posts a placeholder comment within seconds and
 # edits it in place when the review finishes, so neither the comment's presence,
@@ -29,8 +31,8 @@
 # does. The run id is taken ONLY from the [View job] link: a finished review also
 # links the CI run it reports on, and that one finishes minutes earlier.
 #
-# The automatic review on `pull_request` (the code-review plugin, posting with
-# `gh pr comment`) leaves no [View job] link. Given the workflow file that runs
+# An automatic review on `pull_request` that runs the code-review plugin
+# (posting with `gh pr comment`) leaves no [View job] link. Given the workflow file that runs
 # it as the third argument, a comment without a link is matched to that
 # workflow's pull_request run on the PR's head branch that was running when the
 # comment was posted. Only a comment that opens with the plugin's summary
@@ -107,9 +109,14 @@ while IFS=$'\t' read -r comment run created updated kind; do
     via="link"
     # A run can be deleted, expired or unreadable with this token. Report that
     # in the row instead of letting set -e end the table without a word.
-    if run_info=$(gh run view "$run" --json status,conclusion \
-      --jq '"\(.status) \(if .conclusion == "" then "-" else .conclusion end)"' 2>/dev/null); then
-      read -r status conclusion <<<"$run_info"
+    if run_info=$(gh run view "$run" --json status,conclusion,event,headSha \
+      --jq '"\(.status) \(if .conclusion == "" then "-" else .conclusion end) \(.event) \(.headSha)"' 2>/dev/null); then
+      read -r status conclusion event head_sha <<<"$run_info"
+      # A pull_request run is the automatic review in tag mode: it reports
+      # the PR head it reviewed. issue_comment runs report the default branch.
+      if [[ $event == pull_request ]]; then
+        via="auto" sha=$head_sha
+      fi
     else
       status=unreadable conclusion=-
     fi

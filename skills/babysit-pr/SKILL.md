@@ -333,10 +333,12 @@ Check each of these:
   review, even a push that only fixed CI.
 
   The automatic first review also meets this, though nobody requested it in
-  this run: a row with `via` set to `time`, status `completed`, conclusion
-  `success`, a `reviewed_sha` equal to the current `headRefOid`, and a body
-  that is the plugin's summary (`## Code review`) reporting no actionable
-  findings. The script pairs only comments that open with that heading.
+  this run: a row with `via` set to `auto` or `time`, status `completed`,
+  conclusion `success`, a `reviewed_sha` equal to the current `headRefOid`, and
+  no actionable findings. An `auto` row is a tag-mode review with a
+  `[View job]` link, so its comment must also have been edited after posting;
+  a `time` row is the code-review plugin's summary (`## Code review`), the only
+  linkless comment the script pairs.
   Record that `reviewed_sha` as the reviewed commit, as Step 4 would. Any push
   after the PR opened leaves `reviewed_sha` behind HEAD, and then Step 4 is
   still needed.
@@ -427,8 +429,13 @@ progress` and `### Reviewing PR #<n>`, and those do not form a closed set.
 comment's `[View job](…/actions/runs/<id>)` link and reports that run's status:
 
 - Ignore rows whose comment ids you already consumed in an earlier iteration.
-- A row with `via` set to `time` is the automatic `pull_request` review: its
-  comment has no `[View job]` link, so the script paired it with the one run of
+- A row with `via` set to `auto` is the automatic `pull_request` review run in
+  tag mode: its `[View job]` link points at a `pull_request` run, whose head
+  commit the script reports as `reviewed_sha`. It is never the review you
+  requested, but Step 1 lets it count when its `reviewed_sha` is the current
+  HEAD; the edit check below applies to it as to any linked row.
+- A row with `via` set to `time` is the automatic `pull_request` review run by
+  the code-review plugin: its comment has no `[View job]` link, so the script paired it with the one run of
   `<AUTO>` on the PR's branch that was going when the comment was posted. Only
   a comment opening with the plugin's `## Code review` heading is paired, so a
   linkless placeholder from another workflow keeps `-`. It is never the review
