@@ -1,0 +1,35 @@
+version: 2
+
+# Only GitHub Actions: the repo has no package manifests.
+#
+# claude.yml pins every action to a commit SHA, so without this nothing would
+# ever move them. Dependabot bumps the SHA and its trailing `# vX.Y.Z` comment
+# together.
+#
+# The cooldown keeps a freshly published tag out for 8 days: a compromised
+# action runs with this repo's Claude token.
+#
+# Not covered: the `ref:` of the code-review plugin checkout in claude.yml. That
+# one is moved by hand (see the comment next to it).
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 8
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      # claude-code-action gets a PR of its own and is never merged on green CI
+      # alone: before merging, check the new version against the two strings
+      # skills/babysit-pr/scripts/review-runs.sh matches (see the comment above
+      # the action in claude.yml). CI does not catch a mismatch.
+      claude-code-action:
+        patterns: ["anthropics/claude-code-action"]
+      actions:
+        patterns: ["*"]
+        exclude-patterns: ["anthropics/claude-code-action"]
