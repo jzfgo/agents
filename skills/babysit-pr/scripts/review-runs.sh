@@ -40,7 +40,7 @@
 # slips at once, and the body is still read for findings before it counts.
 #
 # Both strings are copied from the action's src/github/operations/comments/
-# common.ts (SPINNER_HTML and the placeholder body) at v1.0.271. The agent
+# common.ts (SPINNER_HTML and the placeholder body) at v1.0.276. The agent
 # copies the spinner from the tag-mode prompt in src/create-prompt/index.ts,
 # which repeats the same image. If a later version changes either string in
 # either file, the test fails open: every row reads "yes" and nothing errors.
@@ -87,7 +87,7 @@ if ! comments=$(gh api "repos/{owner}/{repo}/issues/$pr/comments" --paginate); t
 fi
 
 # The action's spinner image, as its src/github/operations/comments/common.ts
-# and src/create-prompt/index.ts define it at the pinned v1.0.271.
+# and src/create-prompt/index.ts define it at the pinned v1.0.276.
 spinner=5ac382c7-e004-429b-8e35-7feb3e8f9c6f
 
 rows=$(
